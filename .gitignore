@@ -64,6 +64,10 @@ ExportedObj/
 *.pdb.meta
 *.mdb.meta
 
+# Keep imported plugin debug symbols when they live in Assets.
+!/Assets/**/*.dll.mdb
+!/Assets/**/*.dll.mdb.meta
+
 # Unity3D generated file on crash reports
 sysinfo.txt
 
