@@ -29,10 +29,7 @@ public class BoardManager : MonoBehaviour
 
     public BoardSquare GetBoardFromIndex(int indexX,int indexY)
     {
-        BoardSquare boardSquare = new BoardSquare();
-        boardSquare = _boardSquare2DArray[indexX, indexY];
-
-        return boardSquare;
+        return _boardSquare2DArray[indexX, indexY];
     }
 
 

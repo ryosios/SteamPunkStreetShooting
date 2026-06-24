@@ -55,6 +55,14 @@ public class CharacterManager : MonoBehaviour
         {
             SetMove(DirectionKind.Down);
         }
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            SetMove(DirectionKind.Right);
+        }
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            SetMove(DirectionKind.Left);
+        }
     }
 
 
@@ -79,6 +87,18 @@ public class CharacterManager : MonoBehaviour
                     _currentCharaIndex.y -= 1;
                 }
                 break;
+            case DirectionKind.Right:
+                if (_currentCharaIndex.x < 9)
+                {
+                    _currentCharaIndex.x += 1;
+                }
+                break;
+            case DirectionKind.Left:
+                if (_currentCharaIndex.x > 0)
+                {
+                    _currentCharaIndex.x -= 1;
+                }
+                break;
 
         }
     }
@@ -89,18 +109,15 @@ public class CharacterManager : MonoBehaviour
     private void SetMove(DirectionKind directionKind)
     {
         CulculateMoveIndex(directionKind);
-        float beforePosX = _boardManager.GetBoardFromIndex(_beforeCharaIndex.x, _beforeCharaIndex.y).transform.position.x;
-        float beforePosY = _boardManager.GetBoardFromIndex(_beforeCharaIndex.x, _beforeCharaIndex.y).transform.position.y;
-        float currentPosX = _boardManager.GetBoardFromIndex(_currentCharaIndex.x, _currentCharaIndex.y).transform.position.x;
-        float currentPosY = _boardManager.GetBoardFromIndex(_currentCharaIndex.x, _currentCharaIndex.y).transform.position.y;
 
-        Vector2 beforePos = new Vector2(beforePosX,beforePosY);
-        Vector2 currentPos = new Vector2(currentPosX, currentPosY);
+        Vector2 currentPos = _boardManager
+            .GetBoardFromIndex(_currentCharaIndex.x, _currentCharaIndex.y)
+            .transform.position;
 
         _moveTween?.Kill();
 
         _moveTween = DOTween.To(
-                () => beforePos,
+                () => _thisRigid2D.position,
                 x => _thisRigid2D.MovePosition(x),
                 currentPos,
                 0.5f
@@ -108,8 +125,6 @@ public class CharacterManager : MonoBehaviour
             .SetEase(Ease.OutCubic)
             .SetUpdate(UpdateType.Fixed)
             .SetLink(gameObject);
-
-
     }
 
 }
