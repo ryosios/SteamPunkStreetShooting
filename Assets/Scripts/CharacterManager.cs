@@ -23,7 +23,12 @@ public class CharacterManager : MonoBehaviour
     /// <summary>リジッドボディ</summary>
     [SerializeField] private Rigidbody _thisRigid;
 
+    /// <summary>BGManager</summary>
+    [SerializeField] private BgManager _bgManager;
+
     private Tween _moveTween;
+
+    private float _initBgSpeed;
 
     /// <summary>現在のキャラがいるインデックス</summary>
     public struct CharaIndex 
@@ -41,6 +46,8 @@ public class CharacterManager : MonoBehaviour
         _currentCharaIndex = new CharaIndex();
         _currentCharaIndex.x = 0;
         _currentCharaIndex.z = 0;
+
+        _initBgSpeed = _bgManager.GetSpeed();
 
     }
 
@@ -125,6 +132,22 @@ public class CharacterManager : MonoBehaviour
             .SetEase(Ease.OutCubic)
             .SetUpdate(UpdateType.Fixed)
             .SetLink(gameObject);
+
+        //bg速度変更
+        var afterSpeed = _initBgSpeed + 10f;
+        SetBgSpeed(afterSpeed);
+        DOVirtual.Float(afterSpeed, _initBgSpeed, 0.35f, value =>
+        {
+            SetBgSpeed(value);
+        }).SetEase(Ease.OutSine);
     }
 
+    /// <summary>
+    /// 移動に伴って背景のスピードを変更する
+    /// </summary>
+    private void SetBgSpeed(float speed)
+    {
+        _bgManager.SetSpeed(speed);
+       
+    }
 }

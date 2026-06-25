@@ -1057,7 +1057,8 @@ MonoBehaviour:
   _initPosX: 0
   _speed: 8.8
   _offsetPos: 30
-  _destroyPosX: -30
+  _blockOverlap: 0.15
+  _spawnLeadDistance: 1
   _initialBlockCount: 2
 --- !u!1 &1649207061
 GameObject:
@@ -1457,6 +1458,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Character
       objectReference: {fileID: 0}
+    - target: {fileID: 6706554194901145591, guid: 7407e12e1f89fd64ab070e10756033d9, type: 3}
+      propertyPath: _bgManager
+      value: 
+      objectReference: {fileID: 1572789357}
     - target: {fileID: 6706554194901145591, guid: 7407e12e1f89fd64ab070e10756033d9, type: 3}
       propertyPath: _boardManager
       value: 
