@@ -21,7 +21,7 @@ public class CharacterManager : MonoBehaviour
     [SerializeField] private BoardManager _boardManager;
 
     /// <summary>リジッドボディ</summary>
-    [SerializeField] private Rigidbody2D _thisRigid2D;
+    [SerializeField] private Rigidbody _thisRigid;
 
     private Tween _moveTween;
 
@@ -29,7 +29,7 @@ public class CharacterManager : MonoBehaviour
     public struct CharaIndex 
     {
         public int x;
-        public int y;
+        public int z;
        
     }
 
@@ -40,7 +40,7 @@ public class CharacterManager : MonoBehaviour
     {
         _currentCharaIndex = new CharaIndex();
         _currentCharaIndex.x = 0;
-        _currentCharaIndex.y = 0;
+        _currentCharaIndex.z = 0;
 
     }
 
@@ -76,15 +76,15 @@ public class CharacterManager : MonoBehaviour
        switch (_directionKind)
         {
             case DirectionKind.Down:
-                if (_currentCharaIndex.y < 4)
+                if (_currentCharaIndex.z < 4)
                 {
-                    _currentCharaIndex.y += 1;
+                    _currentCharaIndex.z += 1;
                 }
                 break;
             case DirectionKind.Up:
-                if (_currentCharaIndex.y > 0)
+                if (_currentCharaIndex.z > 0)
                 {
-                    _currentCharaIndex.y -= 1;
+                    _currentCharaIndex.z -= 1;
                 }
                 break;
             case DirectionKind.Right:
@@ -110,15 +110,15 @@ public class CharacterManager : MonoBehaviour
     {
         CulculateMoveIndex(directionKind);
 
-        Vector2 currentPos = _boardManager
-            .GetBoardFromIndex(_currentCharaIndex.x, _currentCharaIndex.y)
+        Vector3 currentPos = _boardManager
+            .GetBoardFromIndex(_currentCharaIndex.x, _currentCharaIndex.z)
             .transform.position;
 
         _moveTween?.Kill();
 
         _moveTween = DOTween.To(
-                () => _thisRigid2D.position,
-                x => _thisRigid2D.MovePosition(x),
+                () => _thisRigid.position,
+                x => _thisRigid.MovePosition(x),
                 currentPos,
                 0.5f
             )

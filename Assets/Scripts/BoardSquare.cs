@@ -11,9 +11,9 @@ public class BoardSquare : MonoBehaviour
     public struct BoardIndex
     {
         public int _x;
-        public int _y;
+        public int _z;
         public int X => _x;
-        public int Y => _y;
+        public int Y => _z;
     }
 
     [SerializeField] private BoardIndex _boardIndex;

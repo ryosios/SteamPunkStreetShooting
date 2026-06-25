@@ -15,9 +15,9 @@ public class BoardManager : MonoBehaviour
     {
         for (int x = 0; x < 10; x++)
         {
-            for (int y = 0; y < 5; y++)
+            for (int z = 0; z < 5; z++)
             {
-                _boardSquare2DArray[x, y] = _boardSquareArray[x + y * 10];
+                _boardSquare2DArray[x, z] = _boardSquareArray[x + z * 10];
                
             }            
 
@@ -27,9 +27,9 @@ public class BoardManager : MonoBehaviour
         
     }
 
-    public BoardSquare GetBoardFromIndex(int indexX,int indexY)
+    public BoardSquare GetBoardFromIndex(int indexX,int indexZ)
     {
-        return _boardSquare2DArray[indexX, indexY];
+        return _boardSquare2DArray[indexX, indexZ];
     }
 
 

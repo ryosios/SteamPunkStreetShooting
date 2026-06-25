@@ -1,64 +1,57 @@
 using UnityEngine;
-using UniRx;
-using DG.Tweening;
-using System.Collections;
-using System.Collections.Generic;
 
 public class BgBlock : MonoBehaviour
 {
-    
-
     /// <summary>thisTransform</summary>
     [SerializeField] private Transform _thisTrans;
 
-    /// <summary>thisTransform</summary>
+    /// <summary>古いPrefab参照。移動はTransformで制御する。</summary>
     [SerializeField] private Rigidbody2D _thisRigid;
 
-    /// <summary>初期位置</summary>
-    private float _initPosX;
+    /// <summary>スクロール速度</summary>
+    private float _speed;
 
-    /// <summary>移動量</summary>
-    private float _distance;
-
-    public Subject<Unit> InstanceTimingSubject = new Subject<Unit>();
-
-    /// <summary></summary>
-    private bool _isOneCount;
+    /// <summary>削除するX座標</summary>
+    private float _destroyPosX = -30f;
 
     private void Awake()
     {
-        _initPosX = _thisTrans.transform.position.x;
+        if (_thisTrans == null)
+        {
+            _thisTrans = transform;
+        }
 
+        if (_thisRigid != null)
+        {
+            _thisRigid.simulated = false;
+        }
     }
 
     private void Update()
     {
-        _distance = _initPosX - _thisTrans.localPosition.x;
-        if (_distance >= 30f)
-        {
-            if (!_isOneCount)
-            {
-                _isOneCount = true;
-                InstanceTimingSubject.OnNext(Unit.Default);
-            }
-            
-        }
-        if (_distance >= 60f)
-        {
-            Destroy(this.gameObject);
-        }
+        _thisTrans.localPosition += Vector3.left * (_speed * Time.deltaTime);
 
+        if (_thisTrans.localPosition.x <= _destroyPosX)
+        {
+            Destroy(gameObject);
+        }
     }
 
     /// <summary>
     /// BGBlockを移動
     /// </summary>
-    public void SetMove(float speed)
+    public BgBlock SetMove(float speed)
     {
-        _thisRigid.linearVelocityX = speed;
-
+        _speed = speed;
+        return this;
     }
 
-   
-
+    /// <summary>
+    /// 削除位置を設定
+    /// </summary>
+    public BgBlock SetDestroyPosition(float posX)
+    {
+        _destroyPosX = posX;
+        return this;
+    }
 }
