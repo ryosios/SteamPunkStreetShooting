@@ -52,7 +52,7 @@ public class BossManager : MonoBehaviour
 
     private void Awake()
     {
-        _currentBossPos = _thisTrans.position;  
+        _currentBossPos = _thisTrans.localPosition;  
 
     }
 
@@ -111,8 +111,8 @@ public class BossManager : MonoBehaviour
         CulculateMovePos();
 
         _moveTween = DOTween.To(
-                () => _thisRigid.position,
-                x => _thisRigid.MovePosition(x),
+                GetRigidLocalPosition,
+                MoveRigidLocalPosition,
                 _currentBossPos,
                 1f
             )
@@ -133,6 +133,31 @@ public class BossManager : MonoBehaviour
     {
         
        
+    }
+
+    /// <summary>
+    /// Rigidbodyの現在位置を親から見たローカル座標として取得
+    /// </summary>
+    private Vector3 GetRigidLocalPosition()
+    {
+        if (_thisTrans.parent == null)
+        {
+            return _thisRigid.position;
+        }
+
+        return _thisTrans.parent.InverseTransformPoint(_thisRigid.position);
+    }
+
+    /// <summary>
+    /// ローカル座標で指定した位置へRigidbodyを移動
+    /// </summary>
+    private void MoveRigidLocalPosition(Vector3 localPosition)
+    {
+        Vector3 worldPosition = _thisTrans.parent == null
+            ? localPosition
+            : _thisTrans.parent.TransformPoint(localPosition);
+
+        _thisRigid.MovePosition(worldPosition);
     }
 
 
