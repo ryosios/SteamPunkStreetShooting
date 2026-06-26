@@ -207,7 +207,7 @@ public class PlayerManager : MonoBehaviour
             _beforeActiveCharacter.gameObject.SetActive(true);
             _currentActiveCharacter.gameObject.SetActive(true);
 
-            //キャラ交代演出予定
+            //キャラ交代演出予定。Spineでアニメーション。描画順を決めるためにSpineのOrderInLayerでcurrentの方を必ず上にする。
             await UniTask.Delay(TimeSpan.FromSeconds(1f));
 
             _beforeActiveCharacter.gameObject.SetActive(false);
