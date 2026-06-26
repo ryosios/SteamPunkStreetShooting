@@ -65,10 +65,12 @@ public class CharacterManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             SetMove(DirectionKind.Right);
+            SetBgSpeed(7f);
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             SetMove(DirectionKind.Left);
+            SetBgSpeed(-7f);
         }
     }
 
@@ -133,13 +135,8 @@ public class CharacterManager : MonoBehaviour
             .SetUpdate(UpdateType.Fixed)
             .SetLink(gameObject);
 
-        //bg速度変更
-        var afterSpeed = _initBgSpeed + 10f;
-        SetBgSpeed(afterSpeed);
-        DOVirtual.Float(afterSpeed, _initBgSpeed, 0.35f, value =>
-        {
-            SetBgSpeed(value);
-        }).SetEase(Ease.OutSine);
+        
+        
     }
 
     /// <summary>
@@ -147,7 +144,14 @@ public class CharacterManager : MonoBehaviour
     /// </summary>
     private void SetBgSpeed(float speed)
     {
-        _bgManager.SetSpeed(speed);
-       
+        
+        //bg速度変更
+        var afterSpeed = _initBgSpeed + speed;
+        _bgManager.SetSpeed(afterSpeed); 
+        DOVirtual.Float(afterSpeed, _initBgSpeed, 0.35f, value =>
+        {
+            _bgManager.SetSpeed(value); 
+        }).SetEase(Ease.OutSine);
+
     }
 }
