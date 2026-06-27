@@ -8,16 +8,16 @@ public class BoardManager : MonoBehaviour
     /// <summary>ボードのマスの配列</summary>
     [SerializeField] private BoardSquare[] _boardSquareArray;
 
-    private BoardSquare[,] _boardSquare2DArray = new BoardSquare[10, 5];
+    private BoardSquare[,] _boardSquare2DArray = new BoardSquare[12, 5];
 
 
     private void Awake()
     {
-        for (int x = 0; x < 10; x++)
+        for (int x = 0; x < 12; x++)
         {
             for (int z = 0; z < 5; z++)
             {
-                _boardSquare2DArray[x, z] = _boardSquareArray[x + z * 10];
+                _boardSquare2DArray[x, z] = _boardSquareArray[x + z * 12];
                
             }            
 
