@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4589851898439992494}
   - component: {fileID: 983287024771468690}
   - component: {fileID: 8336301607124470408}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Attack1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4843,7 +4843,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 962112777440791201}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Attack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4909,7 +4909,8 @@ GameObject:
   - component: {fileID: 843999641168281724}
   - component: {fileID: 5433683137505951249}
   - component: {fileID: 7599207433487303895}
-  m_Layer: 0
+  - component: {fileID: 4932598360881565852}
+  m_Layer: 9
   m_Name: Root (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8690,7 +8691,7 @@ ParticleSystem:
     radiusScale: 0.2
     collidesWith:
       serializedVersion: 2
-      m_Bits: 4294967295
+      m_Bits: 128
     maxCollisionShapes: 256
     quality: 0
     voxelSize: 0.5
@@ -8698,15 +8699,16 @@ ParticleSystem:
     collidesWithDynamic: 1
     interiorCollisions: 0
   TriggerModule:
-    enabled: 0
+    enabled: 1
     serializedVersion: 2
-    inside: 1
+    inside: 2
     outside: 0
     enter: 0
     exit: 0
     colliderQueryMode: 0
-    radiusScale: 1
-    primitives: []
+    radiusScale: 0.2
+    primitives:
+    - {fileID: 0}
   SubModule:
     serializedVersion: 2
     enabled: 0
@@ -9731,6 +9733,18 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &4932598360881565852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3835247774749535663}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 369dc6d9251f2a047bd17824f91d5f9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5088195793209712577
 GameObject:
   m_ObjectHideFlags: 0
@@ -9742,7 +9756,7 @@ GameObject:
   - component: {fileID: 7014306425684814959}
   - component: {fileID: 4731976339577674827}
   - component: {fileID: 4109721459617888062}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Locator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
