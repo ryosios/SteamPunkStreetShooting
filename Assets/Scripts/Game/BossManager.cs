@@ -29,30 +29,56 @@ public class BossManager : MonoBehaviour
     /// <summary>AttackオブジェクトのTransform</summary>
     [SerializeField] private Transform _attackTrans;
 
-    /// <summary>動ける範囲:左</summary>
-    private float _movePosLeftLimit = 1f;
+    /// <summary>BoardManager</summary>
+    [SerializeField] private BoardManager _boardManager;
 
-    /// <summary>動ける範囲:右</summary>
-    private float _movePosRightLimit = 1.8f;
+    /// <summary>動けるBoard範囲:左</summary>
+    [SerializeField] private int _moveIndexLeftLimit = 10;
 
-    /// <summary>動ける範囲:上</summary>
-    private float _movePosUpLimit = 2f;
+    /// <summary>動けるBoard範囲:右</summary>
+    [SerializeField] private int _moveIndexRightLimit = 11;
 
-    /// <summary>動ける範囲:下</summary>
-    private float _movePosDownLimit = -2f;
+    /// <summary>動けるBoard範囲:上</summary>
+    [SerializeField] private int _moveIndexUpLimit = 0;
 
-    /// <summary>ボスの移動後の位置</summary>
-    private Vector3 _currentBossPos;
+    /// <summary>動けるBoard範囲:下</summary>
+    [SerializeField] private int _moveIndexDownLimit = 4;
 
+    /// <summary>ボスの移動Tween</summary>
     private Tween _moveTween;
 
+    /// <summary>現在のボスがいるBoardインデックス</summary>
+    public struct BossIndex
+    {
+        public int x;
+        public int z;
+    }
 
-
-   
+    private BossIndex _currentBossIndex;
+    private BossIndex _beforeBossIndex;
 
     private void Awake()
     {
-        _currentBossPos = _thisTrans.localPosition;  
+        if (_thisRigid == null)
+        {
+            _thisRigid = GetComponent<Rigidbody>();
+        }
+
+        if (_thisTrans == null)
+        {
+            _thisTrans = transform;
+        }
+
+        if (_boardManager == null)
+        {
+            _boardManager = FindFirstObjectByType<BoardManager>();
+        }
+
+        _currentBossIndex = new BossIndex
+        {
+            x = Mathf.Clamp(_moveIndexRightLimit, _moveIndexLeftLimit, _moveIndexRightLimit),
+            z = Mathf.Clamp(2, _moveIndexUpLimit, _moveIndexDownLimit)
+        };
 
     }
 
@@ -96,11 +122,13 @@ public class BossManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 移動後の位置を計算
+    /// 移動後のBoardインデックスを計算
     /// </summary>
-    private void CulculateMovePos()
+    private void CulculateMoveIndex()
     {   
-        _currentBossPos = new Vector3(UnityEngine.Random.Range(_movePosLeftLimit, _movePosRightLimit),0f, UnityEngine.Random.Range(_movePosUpLimit, _movePosDownLimit));
+        _beforeBossIndex = _currentBossIndex;
+        _currentBossIndex.x = UnityEngine.Random.Range(_moveIndexLeftLimit, _moveIndexRightLimit + 1);
+        _currentBossIndex.z = UnityEngine.Random.Range(_moveIndexUpLimit, _moveIndexDownLimit + 1);
     }
 
     /// <summary>
@@ -108,12 +136,24 @@ public class BossManager : MonoBehaviour
     /// </summary>
     private void SetMove()
     {
-        CulculateMovePos();
+        CulculateMoveIndex();
+
+        if (_boardManager == null)
+        {
+            Debug.LogWarning("BoardManager is not assigned.");
+            return;
+        }
+
+        Vector3 currentPos = _boardManager
+            .GetBoardFromIndex(_currentBossIndex.x, _currentBossIndex.z)
+            .transform.position;
+
+        _moveTween?.Kill();
 
         _moveTween = DOTween.To(
-                GetRigidLocalPosition,
-                MoveRigidLocalPosition,
-                _currentBossPos,
+                () => _thisRigid.position,
+                x => _thisRigid.MovePosition(x),
+                currentPos,
                 1f
             )
             .SetEase(Ease.OutCubic)
@@ -133,31 +173,6 @@ public class BossManager : MonoBehaviour
     {
         
        
-    }
-
-    /// <summary>
-    /// Rigidbodyの現在位置を親から見たローカル座標として取得
-    /// </summary>
-    private Vector3 GetRigidLocalPosition()
-    {
-        if (_thisTrans.parent == null)
-        {
-            return _thisRigid.position;
-        }
-
-        return _thisTrans.parent.InverseTransformPoint(_thisRigid.position);
-    }
-
-    /// <summary>
-    /// ローカル座標で指定した位置へRigidbodyを移動
-    /// </summary>
-    private void MoveRigidLocalPosition(Vector3 localPosition)
-    {
-        Vector3 worldPosition = _thisTrans.parent == null
-            ? localPosition
-            : _thisTrans.parent.TransformPoint(localPosition);
-
-        _thisRigid.MovePosition(worldPosition);
     }
 
 

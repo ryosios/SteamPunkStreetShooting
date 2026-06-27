@@ -3004,6 +3004,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1694520808}
     m_Modifications:
+    - target: {fileID: 843968276491719134, guid: a53b6cac995491740a3ec548a00cca57, type: 3}
+      propertyPath: _boardManager
+      value: 
+      objectReference: {fileID: 1866609696}
     - target: {fileID: 5433683137505951249, guid: a53b6cac995491740a3ec548a00cca57, type: 3}
       propertyPath: 'TriggerModule.primitives.Array.data[0]'
       value: 
@@ -3014,7 +3018,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9079743999336345232, guid: a53b6cac995491740a3ec548a00cca57, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.41
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 9079743999336345232, guid: a53b6cac995491740a3ec548a00cca57, type: 3}
       propertyPath: m_LocalPosition.y
