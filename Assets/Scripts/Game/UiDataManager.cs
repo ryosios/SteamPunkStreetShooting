@@ -6,20 +6,17 @@ using System.Collections;
 public class UiDataManager : MonoBehaviour
 {
     //ゲームデータの受け渡し等
-    public IReadOnlyReactiveProperty<int> Hp => _hp;
-    private readonly ReactiveProperty<int> _hp = new();
 
-    public IReadOnlyReactiveProperty<int> Score => _score;
-    private readonly ReactiveProperty<int> _score = new();
+    [SerializeField] private UiCharacterStatusManager[] _uiCharacterStatusManager;
 
-    public void SetHp(int hp)
+
+    /// <summary>
+    /// UIのHpを設定
+    /// </summary>
+    public void SetHp(int value ,int characterIndex)
     {
-        _hp.Value = hp;
-    }
+        _uiCharacterStatusManager[characterIndex].SetHpValue(value);
 
-    public void SetScore(int score)
-    {
-        _score.Value = score;
     }
 
 }

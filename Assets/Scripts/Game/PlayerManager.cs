@@ -20,6 +20,9 @@ public class PlayerManager : MonoBehaviour
     /// <summaryDirectionkind</summary>
     private DirectionKind _directionKind;
 
+    /// <summary>UiDataManager</summary>
+    [SerializeField] private UiDataManager _uiDataManager;
+
     /// <summary>BoardManager</summary>
     [SerializeField] private BoardManager _boardManager;
 
@@ -56,7 +59,12 @@ public class PlayerManager : MonoBehaviour
     /// <summary>BGの初期スピード</summary>
     private float _initBgSpeed;
 
-  
+    /// <summary>初期Hp</summary>
+    private int _initHp = 3;
+
+    /// <summary>現在のHp</summary>
+    private int _currentHp;
+
 
     /// <summary>現在のキャラがいるインデックス</summary>
     public struct PlayerIndex 
@@ -89,6 +97,13 @@ public class PlayerManager : MonoBehaviour
 
         _initBgSpeed = _bgManager.GetSpeed();
 
+        _currentHp = _initHp;
+        //UIのHpを初期設定
+        for (int i = 0; i < _characterManagerArray.Length; i++)
+        {
+            _uiDataManager.SetHp(_currentHp, i);
+        }
+        
         
        
 
