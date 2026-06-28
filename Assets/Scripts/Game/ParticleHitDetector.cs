@@ -12,11 +12,6 @@ public class ParticleHitDetector : MonoBehaviour
 
     private PlayerManager _playerManager;
 
-    /// <summary>グレイズの判定クールタイム</summary>
-    private float _coolTime = 0.1f;
-
-    private float _coolTimeCount;
-
     private void Awake()
     {
         if (_particleSystem == null)
@@ -54,14 +49,7 @@ public class ParticleHitDetector : MonoBehaviour
         if (count <= 0) return;
 
         // かすり通知
-
-        _coolTimeCount += Time.deltaTime;
-        if(_coolTimeCount >= _coolTime)
-        {
-            _coolTimeCount = 0;
-            _playerManager.OnGrazeBullet();
-
-        }
+        _playerManager.OnGrazeBullet();
 
         
     }

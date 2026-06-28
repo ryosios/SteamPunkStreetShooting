@@ -41,6 +41,15 @@ public class PlayerManager : MonoBehaviour
     /// <summary>グレイズコライダー</summary>
     public Transform GrazeCollider => _grazeCollider;
 
+    /// <summary>グレイズの判定クールタイム</summary>
+    private float _grazeCoolTime = 0.1f;//0.1秒ごとにグレイズ判定発生
+
+    private float _grazeCoolTimeCount;
+
+    private bool _isGrazeTimerStart = true;
+
+    private bool _isPossibleGraze = false;
+
     /// <summary>アクティブなCharacterのリスト</summary>
     private List<CharacterManager> _characterList = new List<CharacterManager>();
 
@@ -59,12 +68,14 @@ public class PlayerManager : MonoBehaviour
     /// <summary>BGの初期スピード</summary>
     private float _initBgSpeed;
 
-    /// <summary>初期Hp</summary>
-    private int _initHp = 3;
+    /// <summary>被ダメ時の無敵時間</summary>
+    private float _invincibleTime = 0.5f;
 
-    /// <summary>現在のHp</summary>
-    private int _currentHp;
+    private float _invincibleTimeCount;
 
+    private bool _isHitPossible = true;
+
+    private bool _isHitTimerStart = false;
 
     /// <summary>現在のキャラがいるインデックス</summary>
     public struct PlayerIndex 
@@ -79,33 +90,27 @@ public class PlayerManager : MonoBehaviour
 
     private void Awake()
     {
+        
         _currentActiveCharacter = _characterManagerArray[0];
         _characterManagerArray[0].gameObject.SetActive(true);
         _characterManagerArray[1].gameObject.SetActive(false);
         _characterManagerArray[2].gameObject.SetActive(false);
 
+
         for (int i = 0; i < _characterManagerArray.Length; i++)
         {
             _characterList.Add(_characterManagerArray[i]);
-           
+
         }
-        
-      
+
         _currentPlayerIndex = new PlayerIndex();
         _currentPlayerIndex.x = 0;
         _currentPlayerIndex.z = 2;
 
         _initBgSpeed = _bgManager.GetSpeed();
 
-        _currentHp = _initHp;
-        //UIのHpを初期設定
-        for (int i = 0; i < _characterManagerArray.Length; i++)
-        {
-            _uiDataManager.SetHp(_currentHp, i);
-        }
-        
-        
        
+
 
     }
 
@@ -177,6 +182,34 @@ public class PlayerManager : MonoBehaviour
                 break;
 
         }
+
+        if (_isHitTimerStart)
+        {
+            _invincibleTimeCount += Time.deltaTime;
+            if (_invincibleTimeCount <= _invincibleTime)
+            {
+                _invincibleTimeCount = 0;
+                _isHitTimerStart = false;
+                _isHitPossible = true;
+              
+            }
+            
+        }
+
+
+        if (_isGrazeTimerStart)
+        {
+            _grazeCoolTimeCount += Time.deltaTime;
+            if (_grazeCoolTimeCount <= _grazeCoolTime)
+            {
+                _grazeCoolTimeCount = 0;
+                _isGrazeTimerStart = false;
+                _isPossibleGraze = true;
+
+            }
+
+        }        
+
     }
 
     /// <summary>
@@ -253,6 +286,16 @@ public class PlayerManager : MonoBehaviour
     public void OnHitBullet()
     {
         Debug.Log("ヒット");
+
+        if (_isHitPossible)
+        {
+            _isHitPossible = false;
+            _isHitTimerStart = true;
+            //キャラのHPを減らす。UI表示も変更。
+            _currentActiveCharacter.AddHp(-1).SetHpView(_uiDataManager);
+
+        }       
+       
     }
 
     /// <summary>
@@ -261,5 +304,15 @@ public class PlayerManager : MonoBehaviour
     public void OnGrazeBullet()
     {
         Debug.Log("グレイズ");
+        if (_isPossibleGraze)
+        {
+            _isPossibleGraze = false;
+            _isGrazeTimerStart = true;
+            _uiDataManager.SetScore(1);         
+
+
+        }
+        
+       
     }
 }

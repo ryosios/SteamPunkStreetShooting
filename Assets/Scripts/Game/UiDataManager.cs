@@ -11,11 +11,20 @@ public class UiDataManager : MonoBehaviour
 
 
     /// <summary>
-    /// UIのHpを設定
+    /// UIのHpを直接設定
     /// </summary>
     public void SetHp(int value ,int characterIndex)
     {
         _uiCharacterStatusManager[characterIndex].SetHpValue(value);
+
+    }
+
+    /// <summary>
+    /// UIのスコアを設定
+    /// </summary>
+    public void SetScore(int value)
+    {
+       
 
     }
 
