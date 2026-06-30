@@ -150,6 +150,7 @@ Transform:
   m_Children:
   - {fileID: 934470165}
   - {fileID: 1188569076}
+  - {fileID: 975031987}
   m_Father: {fileID: 6786238703539172891}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &206150447
@@ -1329,6 +1330,59 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.18
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &975031986
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 975031987}
+  - component: {fileID: 975031988}
+  m_Layer: 10
+  m_Name: Parry
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &975031987
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 975031986}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 124819885}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &975031988
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 975031986}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1.18
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &976780102
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1826,7 +1880,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1.18
+  m_Radius: 0.9
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &1218933715 stripped
 Transform:
@@ -3056,6 +3110,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1866609696}
     - target: {fileID: 5433683137505951249, guid: a53b6cac995491740a3ec548a00cca57, type: 3}
+      propertyPath: CollisionModule.collidesWith.m_Bits
+      value: 1152
+      objectReference: {fileID: 0}
+    - target: {fileID: 5433683137505951249, guid: a53b6cac995491740a3ec548a00cca57, type: 3}
       propertyPath: 'TriggerModule.primitives.Array.data[0]'
       value: 
       objectReference: {fileID: 1188569076}
@@ -3156,6 +3214,7 @@ MonoBehaviour:
   - {fileID: 1119977204}
   - {fileID: 1509535394}
   _grazeCollider: {fileID: 1188569076}
+  _parryCollider: {fileID: 975031987}
 --- !u!4 &6786238703539172891
 Transform:
   m_ObjectHideFlags: 0

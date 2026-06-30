@@ -33,10 +33,19 @@ public class ParticleHitDetector : MonoBehaviour
 
     private void OnParticleCollision(GameObject other)
     {
-
+        PlayerManager player = other.GetComponentInParent<PlayerManager>();
         if (_playerManager == null) return;
 
-        _playerManager.OnHitBullet();
+        if (_playerManager.IsParryActive)
+        {
+            _playerManager.OnParryBullet();
+            
+        }
+        else
+        {
+            _playerManager.OnHitBullet();
+        }
+
     }
 
     private void OnParticleTrigger()
@@ -49,9 +58,9 @@ public class ParticleHitDetector : MonoBehaviour
         if (count <= 0) return;
 
         // かすり通知
-        _playerManager.OnGrazeBullet();
+        _playerManager.OnGrazeBullet();       
 
-        
+
     }
 
 }

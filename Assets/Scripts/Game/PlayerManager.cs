@@ -50,6 +50,17 @@ public class PlayerManager : MonoBehaviour
 
     private bool _isPossibleGraze = false;
 
+    /// <summary>パリィコライダー</summary>
+    [SerializeField] private Transform _parryCollider;
+
+    private float _characterChangeCoolTime = 2f;
+
+    private float _characterChangeCoolTimeCount;
+
+    private bool _isCharacterChangeCoolTimerStart = true;
+
+    private bool _isPossibleCharacterChange = true;
+
     /// <summary>アクティブなCharacterのリスト</summary>
     private List<CharacterManager> _characterList = new List<CharacterManager>();
 
@@ -76,6 +87,8 @@ public class PlayerManager : MonoBehaviour
     private bool _isHitPossible = true;
 
     private bool _isHitTimerStart = false;
+
+    public bool IsParryActive => _parryCollider.gameObject.activeSelf;
 
     /// <summary>現在のキャラがいるインデックス</summary>
     public struct PlayerIndex 
@@ -109,7 +122,7 @@ public class PlayerManager : MonoBehaviour
 
         _initBgSpeed = _bgManager.GetSpeed();
 
-       
+        _parryCollider.gameObject.SetActive(false);
 
 
     }
@@ -142,8 +155,16 @@ public class PlayerManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             //キャラチェンジ
-            ChangeCharacter();
+            if (_isPossibleCharacterChange)
+            {
+                _isPossibleCharacterChange = false;
+                _isCharacterChangeCoolTimerStart = true;
+                ChangeCharacter();
+            }
+            
         }
+
+        UpdateTimers();
     }
 
 
@@ -182,33 +203,6 @@ public class PlayerManager : MonoBehaviour
                 break;
 
         }
-
-        if (_isHitTimerStart)
-        {
-            _invincibleTimeCount += Time.deltaTime;
-            if (_invincibleTimeCount <= _invincibleTime)
-            {
-                _invincibleTimeCount = 0;
-                _isHitTimerStart = false;
-                _isHitPossible = true;
-              
-            }
-            
-        }
-
-
-        if (_isGrazeTimerStart)
-        {
-            _grazeCoolTimeCount += Time.deltaTime;
-            if (_grazeCoolTimeCount <= _grazeCoolTime)
-            {
-                _grazeCoolTimeCount = 0;
-                _isGrazeTimerStart = false;
-                _isPossibleGraze = true;
-
-            }
-
-        }        
 
     }
 
@@ -268,6 +262,8 @@ public class PlayerManager : MonoBehaviour
             _currentActiveCharacter = _characterList[nextCharacterIndex];
             _characterList.Add(_beforeActiveCharacter);
 
+            SetParryCollider().Forget();
+
             _beforeActiveCharacter.gameObject.SetActive(true);
             _currentActiveCharacter.gameObject.SetActive(true);
 
@@ -281,21 +277,40 @@ public class PlayerManager : MonoBehaviour
     }
 
     /// <summary>
-    /// パーティクルから被弾したとき呼ばれる
+    /// パーティクルから被弾したとき呼ばれる。Hit用。
     /// </summary>
     public void OnHitBullet()
     {
-        Debug.Log("ヒット");
 
+        
         if (_isHitPossible)
         {
+            Debug.Log("ヒット");
             _isHitPossible = false;
             _isHitTimerStart = true;
             //キャラのHPを減らす。UI表示も変更。
             _currentActiveCharacter.AddHp(-1).SetHpView(_uiDataManager);
 
-        }       
-       
+        }
+    }
+
+    /// <summary>
+    /// Parry用のコライダーをアクティブにする。
+    /// </summary>
+    public async UniTaskVoid SetParryCollider()
+    {
+        _parryCollider.gameObject.SetActive(true);
+        await UniTask.DelayFrame(5);
+        _parryCollider.gameObject.SetActive(false);
+
+    }
+
+    /// <summary>
+    /// パーティクルから被弾したとき呼ばれる。Parry用。
+    /// </summary>
+    public void OnParryBullet()
+    {
+        Debug.Log("パリィ");
     }
 
     /// <summary>
@@ -311,8 +326,42 @@ public class PlayerManager : MonoBehaviour
             _uiDataManager.SetScore(1);         
 
 
+        }       
+    }
+
+    private void UpdateTimers()
+    {
+        if (_isHitTimerStart)
+        {
+            _invincibleTimeCount += Time.deltaTime;
+            if (_invincibleTimeCount >= _invincibleTime)
+            {
+                _invincibleTimeCount = 0f;
+                _isHitTimerStart = false;
+                _isHitPossible = true;
+            }
         }
-        
-       
+
+        if (_isGrazeTimerStart)
+        {
+            _grazeCoolTimeCount += Time.deltaTime;
+            if (_grazeCoolTimeCount >= _grazeCoolTime)
+            {
+                _grazeCoolTimeCount = 0f;
+                _isGrazeTimerStart = false;
+                _isPossibleGraze = true;
+            }
+        }
+
+        if (_isCharacterChangeCoolTimerStart)
+        {
+            _characterChangeCoolTimeCount += Time.deltaTime;
+            if (_characterChangeCoolTimeCount >= _characterChangeCoolTime)
+            {
+                _characterChangeCoolTimeCount = 0f;
+                _isCharacterChangeCoolTimerStart = false;
+                _isPossibleCharacterChange = true;
+            }
+        }
     }
 }
