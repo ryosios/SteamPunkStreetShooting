@@ -7,8 +7,11 @@ public class UiDataManager : MonoBehaviour
 {
     //ゲームデータの受け渡し等
 
+    /// <summary>キャラクターのステータスUI</summary>
     [SerializeField] private UiCharacterStatusManager[] _uiCharacterStatusManager;
 
+    /// <summary>スコアUI</summary>
+    [SerializeField] private UiScoreManager _uiScoreManager;
 
     /// <summary>
     /// UIのHpを直接設定
@@ -20,11 +23,13 @@ public class UiDataManager : MonoBehaviour
     }
 
     /// <summary>
-    /// UIのスコアを設定
+    /// UIのスコアを加算
     /// </summary>
-    public void SetScore(int value)
+    public void AddScore(int value)
     {
-       
+        var currentScore = _uiScoreManager.GetScore();
+        currentScore += value;
+        _uiScoreManager.SetScoreText(currentScore);       
 
     }
 

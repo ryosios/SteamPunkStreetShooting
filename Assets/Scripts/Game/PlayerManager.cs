@@ -90,6 +90,12 @@ public class PlayerManager : MonoBehaviour
 
     public bool IsParryActive => _parryCollider.gameObject.activeSelf;
 
+    /// <summary>グレイズで得るスコアポイント</summary>
+    private int _grazeScorePoint = 1;
+
+    /// <summary>パリィで得るスコアポイント</summary>
+    private int _parryScorePoint = 200;
+
     /// <summary>現在のキャラがいるインデックス</summary>
     public struct PlayerIndex 
     {
@@ -311,6 +317,7 @@ public class PlayerManager : MonoBehaviour
     public void OnParryBullet()
     {
         Debug.Log("パリィ");
+        _uiDataManager.AddScore(_parryScorePoint);
     }
 
     /// <summary>
@@ -318,12 +325,12 @@ public class PlayerManager : MonoBehaviour
     /// </summary>
     public void OnGrazeBullet()
     {
-        Debug.Log("グレイズ");
+       
         if (_isPossibleGraze)
         {
             _isPossibleGraze = false;
             _isGrazeTimerStart = true;
-            _uiDataManager.SetScore(1);         
+            _uiDataManager.AddScore(_grazeScorePoint);         
 
 
         }       
