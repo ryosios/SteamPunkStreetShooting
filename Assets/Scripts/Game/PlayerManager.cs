@@ -303,7 +303,7 @@ public class PlayerManager : MonoBehaviour
     /// <summary>
     /// Parry用のコライダーをアクティブにする。
     /// </summary>
-    public async UniTaskVoid SetParryCollider()
+    private async UniTaskVoid SetParryCollider()
     {
         _parryCollider.gameObject.SetActive(true);
         await UniTask.DelayFrame(5);
@@ -334,6 +334,16 @@ public class PlayerManager : MonoBehaviour
 
 
         }       
+    }
+
+
+    /// <summary>
+    /// キャラクターにオートで弾を撃たせる
+    /// </summary>
+    private void PlayCharacterBullet()
+    {
+
+        
     }
 
     private void UpdateTimers()

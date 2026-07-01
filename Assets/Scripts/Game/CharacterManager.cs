@@ -13,7 +13,10 @@ public class CharacterManager : MonoBehaviour
 
     /// <summary>hp</summary>
     private int _hp = 3;
-    
+
+    /// <summary>オートで撃つ自身の弾</summary>
+    [SerializeField] private ParticleSystem _bulletParticle;
+
     /// <summary>
     /// hpを加算する
     /// </summary>

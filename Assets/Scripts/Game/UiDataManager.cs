@@ -13,6 +13,9 @@ public class UiDataManager : MonoBehaviour
     /// <summary>スコアUI</summary>
     [SerializeField] private UiScoreManager _uiScoreManager;
 
+    /// <summary>ボスのステータスUI</summary>
+    [SerializeField] private UiBossStatusManager _uiBossStatusManager;
+
     /// <summary>
     /// UIのHpを直接設定
     /// </summary>
@@ -30,6 +33,17 @@ public class UiDataManager : MonoBehaviour
         var currentScore = _uiScoreManager.GetScore();
         currentScore += value;
         _uiScoreManager.SetScoreText(currentScore);       
+
+    }
+
+    /// <summary>
+    /// ボスのHpを変更
+    /// </summary>
+    public void AddBossHp(int value)
+    {
+        var currentBossHp = _uiBossStatusManager.GetHpValue();
+        currentBossHp -= value;
+        _uiBossStatusManager.SetHpValue(currentBossHp);
 
     }
 
