@@ -27,16 +27,30 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// ステート
     /// </summary>
-    private void SetThisState(GameState thisState)
+    private void SetGameState(GameState thisState)
     {
         _gameState = thisState;
 
         switch (_gameState)
         {
-            case GameState.BeforeStart:         
+            case GameState.BeforeStart:
+                //トランジション等
+                SetGameState(GameState.GameStart);
                 
                 break;
-           
+            case GameState.GameStart:
+
+                break;
+            case GameState.GamePlay:
+
+                break;
+            case GameState.GameEnd:
+
+                break;
+            case GameState.Result:
+
+                break;
+
         }
     }
 

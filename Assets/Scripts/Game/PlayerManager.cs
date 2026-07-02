@@ -96,6 +96,18 @@ public class PlayerManager : MonoBehaviour
     /// <summary>パリィで得るスコアポイント</summary>
     private int _parryScorePoint = 200;
 
+    /// <summary>パリィ成功時のヒットストップ時間</summary>
+    [SerializeField] private float _parryHitStopTime = 0.03f;
+
+    /// <summary>パリィ成功時のヒットストップ中のTimeScale</summary>
+    [SerializeField] private float _parryHitStopTimeScale = 0f;
+
+    /// <summary>ヒットストップ後にTimeScaleを元へ戻す時間</summary>
+    [SerializeField] private float _parryHitStopRecoverTime = 0.08f;
+
+    /// <summary>ヒットストップ中か</summary>
+    private bool _isHitStopping;
+
     /// <summary>現在のキャラがいるインデックス</summary>
     public struct PlayerIndex 
     {
@@ -318,6 +330,7 @@ public class PlayerManager : MonoBehaviour
     {
         Debug.Log("パリィ");
         _uiDataManager.AddScore(_parryScorePoint);
+        PlayParryHitStop().Forget();
     }
 
     /// <summary>
@@ -344,6 +357,48 @@ public class PlayerManager : MonoBehaviour
     {
 
         
+    }
+
+    /// <summary>
+    /// パリィ成功時に短いヒットストップを入れる
+    /// </summary>
+    private async UniTaskVoid PlayParryHitStop()
+    {
+        if (_isHitStopping)
+        {
+            return;
+        }
+
+        _isHitStopping = true;
+        float beforeTimeScale = Time.timeScale;
+        float beforeFixedDeltaTime = Time.fixedDeltaTime;
+        Time.timeScale = _parryHitStopTimeScale;
+        Time.fixedDeltaTime = Mathf.Max(0.0001f, beforeFixedDeltaTime * Time.timeScale);
+
+        await UniTask.Delay(TimeSpan.FromSeconds(_parryHitStopTime), DelayType.UnscaledDeltaTime);
+
+        if (_parryHitStopRecoverTime <= 0f)
+        {
+            Time.timeScale = beforeTimeScale;
+            Time.fixedDeltaTime = beforeFixedDeltaTime;
+            _isHitStopping = false;
+            return;
+        }
+
+        float recoverTimeCount = 0f;
+        while (recoverTimeCount < _parryHitStopRecoverTime)
+        {
+            recoverTimeCount += Time.unscaledDeltaTime;
+            float rate = Mathf.Clamp01(recoverTimeCount / _parryHitStopRecoverTime);
+            float easedRate = 1f - Mathf.Pow(1f - rate, 2f);
+            Time.timeScale = Mathf.Lerp(_parryHitStopTimeScale, beforeTimeScale, easedRate);
+            Time.fixedDeltaTime = Mathf.Max(0.0001f, beforeFixedDeltaTime * Time.timeScale);
+            await UniTask.Yield(PlayerLoopTiming.Update);
+        }
+
+        Time.timeScale = beforeTimeScale;
+        Time.fixedDeltaTime = beforeFixedDeltaTime;
+        _isHitStopping = false;
     }
 
     private void UpdateTimers()
