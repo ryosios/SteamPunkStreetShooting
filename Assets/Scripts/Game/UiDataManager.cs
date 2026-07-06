@@ -1,11 +1,8 @@
-using UnityEngine;
-using UniRx;
-using DG.Tweening;
-using System.Collections;
+﻿using UnityEngine;
 
 public class UiDataManager : MonoBehaviour
 {
-    //ゲームデータの受け渡し等
+    // ゲームデータの受け渡しなどを行うUI窓口。
 
     /// <summary>キャラクターのステータスUI</summary>
     [SerializeField] private UiCharacterStatusManager[] _uiCharacterStatusManager;
@@ -19,10 +16,9 @@ public class UiDataManager : MonoBehaviour
     /// <summary>
     /// UIのHpを直接設定
     /// </summary>
-    public void SetHp(int value ,int characterIndex)
+    public void SetHp(int value, int characterIndex)
     {
         _uiCharacterStatusManager[characterIndex].SetHpValue(value);
-
     }
 
     /// <summary>
@@ -32,19 +28,22 @@ public class UiDataManager : MonoBehaviour
     {
         var currentScore = _uiScoreManager.GetScore();
         currentScore += value;
-        _uiScoreManager.SetScoreText(currentScore);       
-
+        _uiScoreManager.SetScoreText(currentScore);
     }
 
     /// <summary>
     /// ボスのHpを変更
     /// </summary>
-    public void AddBossHp(int value)
+    public void AddBossHp(float value)
     {
+        if (_uiBossStatusManager == null)
+        {
+            Debug.LogWarning("UiBossStatusManager is not assigned.");
+            return;
+        }
+
         var currentBossHp = _uiBossStatusManager.GetHpValue();
-        currentBossHp -= value;
+        currentBossHp += value;
         _uiBossStatusManager.SetHpValue(currentBossHp);
-
     }
-
 }

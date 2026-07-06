@@ -14,6 +14,12 @@ public class CharacterManager : MonoBehaviour
     /// <summary>hp</summary>
     private int _hp = 3;
 
+    /// <summary>UŒ‚—Í</summary>
+    [SerializeField] private float _power = 0.1f;
+
+    /// <summary>UŒ‚—Í</summary>
+    public float Power => _power;
+
     /// <summary>ƒI[ƒg‚ÅŒ‚‚Â©g‚Ì’e</summary>
     [SerializeField] private ParticleSystem _bulletParticle;
 

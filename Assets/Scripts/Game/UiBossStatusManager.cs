@@ -13,12 +13,17 @@ public class UiBossStatusManager : MonoBehaviour
     /// <summary>ボスの名前のテキスト</summary>
     [SerializeField] private TextMeshProUGUI _nameText;
 
-    private int _currentHpValue = 0;
+    private float _currentHpValue = 1;
+
+    private void Awake()
+    {
+        SetHpValue(_currentHpValue);
+    }
 
     /// <summary>
-    /// ボスのHpを取得
+    /// スライダーの値を取得
     /// </summary>
-    public int GetHpValue()
+    public float GetHpValue()
     {
         return _currentHpValue;
     }
@@ -26,10 +31,14 @@ public class UiBossStatusManager : MonoBehaviour
     /// <summary>
     /// UIのHpを設定
     /// </summary>
-    public void SetHpValue(int hpValue)
+    public void SetHpValue(float hpValue)
     {
-        _currentHpValue = hpValue;
-        _hpSlider.value = _currentHpValue;
+        _currentHpValue = Mathf.Clamp01(hpValue);
+
+        if (_hpSlider != null)
+        {
+            _hpSlider.value = _currentHpValue;
+        }
     }
 
     /// <summary>

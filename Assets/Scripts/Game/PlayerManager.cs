@@ -67,6 +67,9 @@ public class PlayerManager : MonoBehaviour
     /// <summary>現在アクティブのキャラクター(交代後)</summary>
     private CharacterManager _currentActiveCharacter;
 
+    /// <summary>現在アクティブのキャラクター(交代後)</summary>
+    public CharacterManager CurrentActiveCharacter => _currentActiveCharacter;
+
     /// <summary>前回アクティブだったキャラクター(交代前)</summary>
     private CharacterManager _beforeActiveCharacter;
 

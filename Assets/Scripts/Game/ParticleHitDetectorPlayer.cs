@@ -4,13 +4,11 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 
-public class ParticleHitDetector : MonoBehaviour
+public class ParticleHitDetectorPlayer : MonoBehaviour
 {
     private ParticleSystem _particleSystem;
 
     private readonly List<ParticleSystem.Particle> _insideParticles = new();
-
-    private PlayerManager _playerManager;
 
     private void Awake()
     {
@@ -19,34 +17,28 @@ public class ParticleHitDetector : MonoBehaviour
             _particleSystem = GetComponent<ParticleSystem>();
         }
 
-        _playerManager = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerManager>();
-
-        var trigger = _particleSystem.trigger;
+        //var trigger = _particleSystem.trigger;
 
         // 既存をクリア
-        trigger.SetCollider(0, null);
+        //trigger.SetCollider(0, null);
 
         // 0番に登録
-        trigger.SetCollider(0, _playerManager.GrazeCollider);
+        //trigger.SetCollider(0, _bossManager.GrazeCollider);
     }
 
     private void OnParticleCollision(GameObject other)
     {
-        PlayerManager player = other.GetComponentInParent<PlayerManager>();
-        if (_playerManager == null) return;
+        BossManager hitBossManager = other.GetComponentInParent<BossManager>();
+        if (hitBossManager == null)
+        {
+            return;
+        }
 
-        if (_playerManager.IsParryActive)
-        {
-            _playerManager.OnParryBullet();
-            
-        }
-        else
-        {
-            _playerManager.OnHitBullet();
-        }
+        hitBossManager.OnHitBullet();
 
     }
 
+    /*
     private void OnParticleTrigger()
     {
         int count = _particleSystem.GetTriggerParticles(
@@ -61,5 +53,5 @@ public class ParticleHitDetector : MonoBehaviour
 
 
     }
-
+    */
 }

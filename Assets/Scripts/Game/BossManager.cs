@@ -19,7 +19,16 @@ public class BossManager : MonoBehaviour
 
     /// <summaryDirectionkind</summary>
     private BossActionState _bossActionState = BossActionState.Default;
- 
+
+    /// <summary>ボスの防御力（1に対しての割合）</summary>
+    private float _guard = 10f;
+
+    /// <summary>UIDataManager</summary>
+    [SerializeField] private UiDataManager _uiDataManager;
+
+    /// <summary>UIDataManager</summary>
+    [SerializeField] private PlayerManager _playerManager;
+
     /// <summary>リジッドボディ</summary>
     [SerializeField] private Rigidbody _thisRigid;
 
@@ -59,6 +68,16 @@ public class BossManager : MonoBehaviour
 
     private void Awake()
     {
+        if (_uiDataManager == null)
+        {
+            _uiDataManager = FindFirstObjectByType<UiDataManager>();
+        }
+
+        if (_playerManager == null)
+        {
+            _playerManager = FindFirstObjectByType<PlayerManager>();
+        }
+
         if (_thisRigid == null)
         {
             _thisRigid = GetComponent<Rigidbody>();
@@ -173,6 +192,23 @@ public class BossManager : MonoBehaviour
     {
         
        
+    }
+
+    /// <summary>
+    /// Playerの弾がヒットしたときに呼ばれる
+    /// </summary>
+    public void OnHitBullet()
+    {
+        if (_uiDataManager == null || _playerManager == null || _playerManager.CurrentActiveCharacter == null)
+        {
+            Debug.LogWarning("Boss damage references are not assigned.");
+            return;
+        }
+
+        float safeGuard = Mathf.Max(0.0001f, _guard);
+        float activeCharacterPower = _playerManager.CurrentActiveCharacter.Power;
+        float normalizedDamage = activeCharacterPower / safeGuard;
+        _uiDataManager.AddBossHp(-normalizedDamage);
     }
 
 
