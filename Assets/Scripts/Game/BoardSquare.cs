@@ -1,24 +1,24 @@
 using UnityEngine;
-using UniRx;
-using DG.Tweening;
-using System.Collections;
 
 public class BoardSquare : MonoBehaviour
 {
-
-    /// <summary>ボートのマスのインデックス</summary>
+    /// <summary>ボードマスのXYインデックス</summary>
     [System.Serializable]
     public struct BoardIndex
     {
-        public int _x;
-        public int _z;
+        [SerializeField] private int _x;
+        [SerializeField] private int _y;
+
         public int X => _x;
-        public int Y => _z;
+        public int Y => _y;
     }
 
+    /// <summary>このマスのXYインデックス</summary>
     [SerializeField] private BoardIndex _boardIndex;
 
+    /// <summary>このマスのTransform</summary>
     [SerializeField] private Transform _thisTrans;
 
-
+    public BoardIndex Index => _boardIndex;
+    public Transform ThisTrans => _thisTrans != null ? _thisTrans : transform;
 }

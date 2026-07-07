@@ -115,7 +115,7 @@ public class PlayerManager : MonoBehaviour
     public struct PlayerIndex 
     {
         public int x;
-        public int z;
+        public int y;
        
     }
 
@@ -139,7 +139,7 @@ public class PlayerManager : MonoBehaviour
 
         _currentPlayerIndex = new PlayerIndex();
         _currentPlayerIndex.x = 0;
-        _currentPlayerIndex.z = 2;
+        _currentPlayerIndex.y = 2;
 
         _initBgSpeed = _bgManager.GetSpeed();
 
@@ -199,15 +199,15 @@ public class PlayerManager : MonoBehaviour
        switch (_directionKind)
         {
             case DirectionKind.Down:
-                if (_currentPlayerIndex.z < 4)
+                if (_currentPlayerIndex.y < 4)
                 {
-                    _currentPlayerIndex.z += 1;
+                    _currentPlayerIndex.y += 1;
                 }
                 break;
             case DirectionKind.Up:
-                if (_currentPlayerIndex.z > 0)
+                if (_currentPlayerIndex.y > 0)
                 {
-                    _currentPlayerIndex.z -= 1;
+                    _currentPlayerIndex.y -= 1;
                 }
                 break;
             case DirectionKind.Right:
@@ -235,7 +235,7 @@ public class PlayerManager : MonoBehaviour
         CulculateMoveIndex(directionKind);
 
         Vector3 currentPos = _boardManager
-            .GetBoardFromIndex(_currentPlayerIndex.x, _currentPlayerIndex.z)
+            .GetBoardFromIndex(_currentPlayerIndex.x, _currentPlayerIndex.y)
             .transform.position;
 
         _moveTween?.Kill();

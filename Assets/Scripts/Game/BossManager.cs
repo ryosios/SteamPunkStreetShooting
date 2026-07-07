@@ -60,7 +60,7 @@ public class BossManager : MonoBehaviour
     public struct BossIndex
     {
         public int x;
-        public int z;
+        public int y;
     }
 
     private BossIndex _currentBossIndex;
@@ -96,7 +96,7 @@ public class BossManager : MonoBehaviour
         _currentBossIndex = new BossIndex
         {
             x = Mathf.Clamp(_moveIndexRightLimit, _moveIndexLeftLimit, _moveIndexRightLimit),
-            z = Mathf.Clamp(2, _moveIndexUpLimit, _moveIndexDownLimit)
+            y = Mathf.Clamp(2, _moveIndexUpLimit, _moveIndexDownLimit)
         };
 
     }
@@ -147,7 +147,7 @@ public class BossManager : MonoBehaviour
     {   
         _beforeBossIndex = _currentBossIndex;
         _currentBossIndex.x = UnityEngine.Random.Range(_moveIndexLeftLimit, _moveIndexRightLimit + 1);
-        _currentBossIndex.z = UnityEngine.Random.Range(_moveIndexUpLimit, _moveIndexDownLimit + 1);
+        _currentBossIndex.y = UnityEngine.Random.Range(_moveIndexUpLimit, _moveIndexDownLimit + 1);
     }
 
     /// <summary>
@@ -164,7 +164,7 @@ public class BossManager : MonoBehaviour
         }
 
         Vector3 currentPos = _boardManager
-            .GetBoardFromIndex(_currentBossIndex.x, _currentBossIndex.z)
+            .GetBoardFromIndex(_currentBossIndex.x, _currentBossIndex.y)
             .transform.position;
 
         _moveTween?.Kill();

@@ -1,36 +1,32 @@
 using UnityEngine;
-using UniRx;
-using DG.Tweening;
-using System.Collections;
 
 public class BoardManager : MonoBehaviour
 {
-    /// <summary>ボードのマスの配列</summary>
+    private const int BoardWidth = 12;
+    private const int BoardHeight = 5;
+
+    /// <summary>ボードマスの配列</summary>
     [SerializeField] private BoardSquare[] _boardSquareArray;
 
-    private BoardSquare[,] _boardSquare2DArray = new BoardSquare[12, 5];
-
+    /// <summary>XYインデックスで参照するボードマス配列</summary>
+    private readonly BoardSquare[,] _boardSquare2DArray = new BoardSquare[BoardWidth, BoardHeight];
 
     private void Awake()
     {
-        for (int x = 0; x < 12; x++)
+        for (int x = 0; x < BoardWidth; x++)
         {
-            for (int z = 0; z < 5; z++)
+            for (int y = 0; y < BoardHeight; y++)
             {
-                _boardSquare2DArray[x, z] = _boardSquareArray[x + z * 12];
-               
-            }            
-
+                _boardSquare2DArray[x, y] = _boardSquareArray[x + y * BoardWidth];
+            }
         }
-
-        Debug.Log(_boardSquare2DArray[2,3].gameObject.name);
-        
     }
 
-    public BoardSquare GetBoardFromIndex(int indexX,int indexZ)
+    /// <summary>
+    /// XYインデックスからボードマスを取得
+    /// </summary>
+    public BoardSquare GetBoardFromIndex(int indexX, int indexY)
     {
-        return _boardSquare2DArray[indexX, indexZ];
+        return _boardSquare2DArray[indexX, indexY];
     }
-
-
 }
