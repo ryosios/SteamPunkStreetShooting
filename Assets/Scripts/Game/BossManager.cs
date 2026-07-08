@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UniRx;
 using DG.Tweening;
 using System.Collections;
@@ -7,56 +7,55 @@ using System;
 
 public class BossManager : MonoBehaviour
 {
-
     private enum BossActionState
     {
         Default,
-        In,//入場
-        Wait,//待機
-        Move,//移動
-        Out,//退場
+        In,
+        Wait,
+        Move,
+        Out,
     }
 
-    /// <summaryDirectionkind</summary>
+    /// <summary>現在のボス行動状態</summary>
     private BossActionState _bossActionState = BossActionState.Default;
 
-    /// <summary>ボスの防御力（1に対しての割合）</summary>
+    /// <summary>ボスの防御力。キャラクター攻撃力を割ってHP減少量を決める</summary>
     private float _guard = 10f;
 
-    /// <summary>UIDataManager</summary>
+    /// <summary>UIデータ管理</summary>
     [SerializeField] private UiDataManager _uiDataManager;
 
-    /// <summary>UIDataManager</summary>
+    /// <summary>プレイヤー管理</summary>
     [SerializeField] private PlayerManager _playerManager;
 
-    /// <summary>リジッドボディ</summary>
+    /// <summary>ボスのRigidbody</summary>
     [SerializeField] private Rigidbody _thisRigid;
 
-    /// <summary>Transform</summary>
+    /// <summary>ボスのTransform</summary>
     [SerializeField] private Transform _thisTrans;
 
-    /// <summary>AttackオブジェクトのTransform</summary>
+    /// <summary>攻撃オブジェクトのTransform</summary>
     [SerializeField] private Transform _attackTrans;
 
-    /// <summary>BoardManager</summary>
+    /// <summary>ボード管理</summary>
     [SerializeField] private BoardManager _boardManager;
 
-    /// <summary>動けるBoard範囲:左</summary>
+    /// <summary>移動可能なボード範囲: 左端X</summary>
     [SerializeField] private int _moveIndexLeftLimit = 10;
 
-    /// <summary>動けるBoard範囲:右</summary>
+    /// <summary>移動可能なボード範囲: 右端X</summary>
     [SerializeField] private int _moveIndexRightLimit = 11;
 
-    /// <summary>動けるBoard範囲:上</summary>
+    /// <summary>移動可能なボード範囲: 上端Y</summary>
     [SerializeField] private int _moveIndexUpLimit = 0;
 
-    /// <summary>動けるBoard範囲:下</summary>
+    /// <summary>移動可能なボード範囲: 下端Y</summary>
     [SerializeField] private int _moveIndexDownLimit = 4;
 
-    /// <summary>ボスの移動Tween</summary>
+    /// <summary>ボス移動Tween</summary>
     private Tween _moveTween;
 
-    /// <summary>現在のボスがいるBoardインデックス</summary>
+    /// <summary>ボスの現在ボードインデックス</summary>
     public struct BossIndex
     {
         public int x;
@@ -98,7 +97,6 @@ public class BossManager : MonoBehaviour
             x = Mathf.Clamp(_moveIndexRightLimit, _moveIndexLeftLimit, _moveIndexRightLimit),
             y = Mathf.Clamp(2, _moveIndexUpLimit, _moveIndexDownLimit)
         };
-
     }
 
     private async void Start()
@@ -108,22 +106,19 @@ public class BossManager : MonoBehaviour
         await UniTask.Delay(TimeSpan.FromSeconds(1f));
 
         SetBossAction(BossActionState.In);
-
     }
 
-    private async void SetBossAction(BossActionState bossActionState) 
+    private async void SetBossAction(BossActionState bossActionState)
     {
         var state = bossActionState;
         switch (state)
         {
             case BossActionState.In:
-                //登場演出予定
                 await UniTask.Delay(TimeSpan.FromSeconds(1f));
                 SetBossAction(BossActionState.Wait);
                 break;
 
             case BossActionState.Wait:
-                //待機時間
                 await UniTask.Delay(TimeSpan.FromSeconds(1f));
                 SetBossAction(BossActionState.Move);
                 break;
@@ -131,27 +126,24 @@ public class BossManager : MonoBehaviour
             case BossActionState.Move:
                 SetMove();
                 break;
-           
-            case BossActionState.Out:
-                //退場演出予定
-                break;
-            
-        }
 
+            case BossActionState.Out:
+                break;
+        }
     }
 
     /// <summary>
-    /// 移動後のBoardインデックスを計算
+    /// 移動後のボードインデックスを計算
     /// </summary>
     private void CulculateMoveIndex()
-    {   
+    {
         _beforeBossIndex = _currentBossIndex;
         _currentBossIndex.x = UnityEngine.Random.Range(_moveIndexLeftLimit, _moveIndexRightLimit + 1);
         _currentBossIndex.y = UnityEngine.Random.Range(_moveIndexUpLimit, _moveIndexDownLimit + 1);
     }
 
     /// <summary>
-    /// Bossを移動
+    /// ボスをボード上のランダム位置へ移動
     /// </summary>
     private void SetMove()
     {
@@ -178,24 +170,21 @@ public class BossManager : MonoBehaviour
             .SetEase(Ease.OutCubic)
             .SetUpdate(UpdateType.Fixed)
             .SetLink(gameObject);
-        _moveTween.OnComplete(()=> 
+        _moveTween.OnComplete(() =>
         {
             SetBossAction(BossActionState.Wait);
-
         });
     }
 
     /// <summary>
-    /// 攻撃
+    /// ボス攻撃処理
     /// </summary>
     private void SetAttack()
     {
-        
-       
     }
 
     /// <summary>
-    /// Playerの弾がヒットしたときに呼ばれる
+    /// プレイヤー弾がボスにヒットしたときに呼ばれる
     /// </summary>
     public void OnHitBullet()
     {
@@ -210,6 +199,5 @@ public class BossManager : MonoBehaviour
         float normalizedDamage = activeCharacterPower / safeGuard;
         _uiDataManager.AddBossHp(-normalizedDamage);
     }
-
-
 }
+

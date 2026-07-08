@@ -18,6 +18,18 @@ public class UiDataManager : MonoBehaviour
     /// </summary>
     public void SetHp(int value, int characterIndex)
     {
+        if (characterIndex < 0 || characterIndex >= _uiCharacterStatusManager.Length)
+        {
+            Debug.LogWarning($"Character status UI index is out of range. index: {characterIndex}");
+            return;
+        }
+
+        if (_uiCharacterStatusManager[characterIndex] == null)
+        {
+            Debug.LogWarning($"Character status UI is not assigned. index: {characterIndex}");
+            return;
+        }
+
         _uiCharacterStatusManager[characterIndex].SetHpValue(value);
     }
 

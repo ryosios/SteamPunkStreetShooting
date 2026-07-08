@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UniRx;
 using DG.Tweening;
 using System.Collections;
@@ -8,7 +8,6 @@ using System.Collections.Generic;
 
 public class PlayerManager : MonoBehaviour
 {
-
     private enum DirectionKind
     {
         Right,
@@ -17,32 +16,32 @@ public class PlayerManager : MonoBehaviour
         Down,
     }
 
-    /// <summaryDirectionkind</summary>
+    /// <summary>現在の入力方向</summary>
     private DirectionKind _directionKind;
 
-    /// <summary>UiDataManager</summary>
+    /// <summary>UIデータ管理</summary>
     [SerializeField] private UiDataManager _uiDataManager;
 
-    /// <summary>BoardManager</summary>
+    /// <summary>ボード管理</summary>
     [SerializeField] private BoardManager _boardManager;
 
-    /// <summary>リジッドボディ</summary>
+    /// <summary>プレイヤーのRigidbody</summary>
     [SerializeField] private Rigidbody _thisRigid;
 
-    /// <summary>BGManager</summary>
+    /// <summary>背景管理</summary>
     [SerializeField] private BgManager _bgManager;
 
-    /// <summary>CharacterManager</summary>
+    /// <summary>使用可能なキャラクター配列</summary>
     [SerializeField] private CharacterManager[] _characterManagerArray = new CharacterManager[3];
 
-    /// <summary>グレイズコライダー</summary>
+    /// <summary>グレイズ判定用コライダー</summary>
     [SerializeField] private Transform _grazeCollider;
 
-    /// <summary>グレイズコライダー</summary>
+    /// <summary>グレイズ判定用コライダー</summary>
     public Transform GrazeCollider => _grazeCollider;
 
-    /// <summary>グレイズの判定クールタイム</summary>
-    private float _grazeCoolTime = 0.1f;//0.1秒ごとにグレイズ判定発生
+    /// <summary>グレイズ判定のクールタイム</summary>
+    private float _grazeCoolTime = 0.1f;
 
     private float _grazeCoolTimeCount;
 
@@ -50,9 +49,10 @@ public class PlayerManager : MonoBehaviour
 
     private bool _isPossibleGraze = false;
 
-    /// <summary>パリィコライダー</summary>
+    /// <summary>パリィ判定用コライダー</summary>
     [SerializeField] private Transform _parryCollider;
 
+    /// <summary>キャラクター変更のクールタイム</summary>
     private float _characterChangeCoolTime = 2f;
 
     private float _characterChangeCoolTimeCount;
@@ -61,28 +61,27 @@ public class PlayerManager : MonoBehaviour
 
     private bool _isPossibleCharacterChange = true;
 
-    /// <summary>アクティブなCharacterのリスト</summary>
+    /// <summary>キャラクター変更候補のリスト</summary>
     private List<CharacterManager> _characterList = new List<CharacterManager>();
 
-    /// <summary>現在アクティブのキャラクター(交代後)</summary>
+    /// <summary>現在アクティブなキャラクター</summary>
     private CharacterManager _currentActiveCharacter;
 
-    /// <summary>現在アクティブのキャラクター(交代後)</summary>
     public CharacterManager CurrentActiveCharacter => _currentActiveCharacter;
 
-    /// <summary>前回アクティブだったキャラクター(交代前)</summary>
+    /// <summary>前回アクティブだったキャラクター</summary>
     private CharacterManager _beforeActiveCharacter;
 
-    /// <summary>キャラチェンジ中のフラグ</summary>
+    /// <summary>キャラクター変更中かどうか</summary>
     private bool _isUpdateCharacterChange;
 
-    /// <summary>Tween</summary>
+    /// <summary>移動Tween</summary>
     private Tween _moveTween;
 
-    /// <summary>BGの初期スピード</summary>
+    /// <summary>背景の初期スクロール速度</summary>
     private float _initBgSpeed;
 
-    /// <summary>被ダメ時の無敵時間</summary>
+    /// <summary>被ダメージ後の無敵時間</summary>
     private float _invincibleTime = 0.5f;
 
     private float _invincibleTimeCount;
@@ -93,30 +92,29 @@ public class PlayerManager : MonoBehaviour
 
     public bool IsParryActive => _parryCollider.gameObject.activeSelf;
 
-    /// <summary>グレイズで得るスコアポイント</summary>
+    /// <summary>グレイズで得られるスコア</summary>
     private int _grazeScorePoint = 1;
 
-    /// <summary>パリィで得るスコアポイント</summary>
+    /// <summary>パリィで得られるスコア</summary>
     private int _parryScorePoint = 200;
 
     /// <summary>パリィ成功時のヒットストップ時間</summary>
     [SerializeField] private float _parryHitStopTime = 0.03f;
 
-    /// <summary>パリィ成功時のヒットストップ中のTimeScale</summary>
+    /// <summary>ヒットストップ中のTimeScale</summary>
     [SerializeField] private float _parryHitStopTimeScale = 0f;
 
-    /// <summary>ヒットストップ後にTimeScaleを元へ戻す時間</summary>
+    /// <summary>ヒットストップ後にTimeScaleを戻す時間</summary>
     [SerializeField] private float _parryHitStopRecoverTime = 0.08f;
 
-    /// <summary>ヒットストップ中か</summary>
+    /// <summary>ヒットストップ中かどうか</summary>
     private bool _isHitStopping;
 
-    /// <summary>現在のキャラがいるインデックス</summary>
-    public struct PlayerIndex 
+    /// <summary>現在のプレイヤーのボードインデックス</summary>
+    public struct PlayerIndex
     {
         public int x;
         public int y;
-       
     }
 
     private PlayerIndex _currentPlayerIndex;
@@ -124,17 +122,28 @@ public class PlayerManager : MonoBehaviour
 
     private void Awake()
     {
-        
-        _currentActiveCharacter = _characterManagerArray[0];
-        _characterManagerArray[0].gameObject.SetActive(true);
-        _characterManagerArray[1].gameObject.SetActive(false);
-        _characterManagerArray[2].gameObject.SetActive(false);
-
-
+        _characterList.Clear();
         for (int i = 0; i < _characterManagerArray.Length; i++)
         {
-            _characterList.Add(_characterManagerArray[i]);
+            CharacterManager characterManager = _characterManagerArray[i];
+            if (characterManager == null || _characterList.Contains(characterManager))
+            {
+                continue;
+            }
 
+            _characterList.Add(characterManager);
+        }
+
+        if (_characterList.Count <= 0)
+        {
+            Debug.LogWarning("CharacterManager is not assigned.");
+            return;
+        }
+
+        _currentActiveCharacter = _characterList[0];
+        for (int i = 0; i < _characterList.Count; i++)
+        {
+            _characterList[i].gameObject.SetActive(_characterList[i] == _currentActiveCharacter);
         }
 
         _currentPlayerIndex = new PlayerIndex();
@@ -144,8 +153,6 @@ public class PlayerManager : MonoBehaviour
         _initBgSpeed = _bgManager.GetSpeed();
 
         _parryCollider.gameObject.SetActive(false);
-
-
     }
 
     private void Update()
@@ -153,7 +160,6 @@ public class PlayerManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.W))
         {
             SetMove(DirectionKind.Up);
-
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
@@ -162,41 +168,38 @@ public class PlayerManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.D))
         {
             SetMove(DirectionKind.Right);
-            SetBgSpeed(7f);
+            SetBgSpeed(2f);
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
             SetMove(DirectionKind.Left);
-            SetBgSpeed(-7f);
+            SetBgSpeed(-2f);
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            //スキル予定
+            // スキル使用予定
         }
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            //キャラチェンジ
             if (_isPossibleCharacterChange)
             {
                 _isPossibleCharacterChange = false;
                 _isCharacterChangeCoolTimerStart = true;
                 ChangeCharacter();
             }
-            
         }
 
         UpdateTimers();
     }
 
-
     /// <summary>
-    /// 移動後のインデックスを計算
+    /// 移動後のボードインデックスを計算
     /// </summary>
     private void CulculateMoveIndex(DirectionKind directionKind)
     {
         _directionKind = directionKind;
         _beforePlayerIndex = _currentPlayerIndex;
-       switch (_directionKind)
+        switch (_directionKind)
         {
             case DirectionKind.Down:
                 if (_currentPlayerIndex.y < 4)
@@ -211,7 +214,7 @@ public class PlayerManager : MonoBehaviour
                 }
                 break;
             case DirectionKind.Right:
-                if (_currentPlayerIndex.x < 9)
+                if (_currentPlayerIndex.x < 11)
                 {
                     _currentPlayerIndex.x += 1;
                 }
@@ -222,13 +225,11 @@ public class PlayerManager : MonoBehaviour
                     _currentPlayerIndex.x -= 1;
                 }
                 break;
-
         }
-
     }
 
     /// <summary>
-    /// キャラを移動
+    /// キャラクターを指定方向へ移動
     /// </summary>
     private void SetMove(DirectionKind directionKind)
     {
@@ -248,28 +249,24 @@ public class PlayerManager : MonoBehaviour
             )
             .SetEase(Ease.OutCubic)
             .SetUpdate(UpdateType.Fixed)
-            .SetLink(gameObject);       
-        
+            .SetLink(gameObject);
     }
 
     /// <summary>
-    /// 移動に伴って背景のスピードを変更する
+    /// 移動に合わせて背景スクロール速度を一時的に変更
     /// </summary>
     private void SetBgSpeed(float speed)
     {
-        
-        //bg速度変更
         var afterSpeed = _initBgSpeed + speed;
-        _bgManager.SetSpeed(afterSpeed); 
+        _bgManager.SetSpeed(afterSpeed);
         DOVirtual.Float(afterSpeed, _initBgSpeed, 0.35f, value =>
         {
-            _bgManager.SetSpeed(value); 
+            _bgManager.SetSpeed(value);
         }).SetEase(Ease.OutSine);
-
     }
 
     /// <summary>
-    /// キャラを交代（Player配下にCharacterを3種類持つ。クロスフェード的な演出で切り替える）
+    /// キャラクターを交代
     /// </summary>
     private async void ChangeCharacter()
     {
@@ -288,46 +285,59 @@ public class PlayerManager : MonoBehaviour
             _beforeActiveCharacter.gameObject.SetActive(true);
             _currentActiveCharacter.gameObject.SetActive(true);
 
-            //キャラ交代演出予定。Spineでアニメーション。描画順を決めるためにSpineのOrderInLayerでcurrentの方を必ず上にする。
+            // クロスフェード中は前後のキャラクターを同時に表示する
             await UniTask.Delay(TimeSpan.FromSeconds(1f));
 
             _beforeActiveCharacter.gameObject.SetActive(false);
             _isUpdateCharacterChange = false;
-
         }
     }
 
     /// <summary>
-    /// パーティクルから被弾したとき呼ばれる。Hit用。
+    /// プレイヤーが被弾したときに呼ばれる
     /// </summary>
     public void OnHitBullet()
     {
-
-        
         if (_isHitPossible)
         {
             Debug.Log("ヒット");
             _isHitPossible = false;
             _isHitTimerStart = true;
-            //キャラのHPを減らす。UI表示も変更。
-            _currentActiveCharacter.AddHp(-1).SetHpView(_uiDataManager);
 
+            int characterIndex = GetCharacterIndex(_currentActiveCharacter);
+            _currentActiveCharacter.AddHp(-1).SetHpView(_uiDataManager, characterIndex);
         }
     }
 
     /// <summary>
-    /// Parry用のコライダーをアクティブにする。
+    /// UI表示に使う固定のキャラインデックスを取得
+    /// </summary>
+    private int GetCharacterIndex(CharacterManager characterManager)
+    {
+        for (int i = 0; i < _characterManagerArray.Length; i++)
+        {
+            if (_characterManagerArray[i] == characterManager)
+            {
+                return i;
+            }
+        }
+
+        Debug.LogWarning("Current character is not found in CharacterManager array.");
+        return 0;
+    }
+
+    /// <summary>
+    /// パリィ用コライダーを短時間だけ有効化
     /// </summary>
     private async UniTaskVoid SetParryCollider()
     {
         _parryCollider.gameObject.SetActive(true);
         await UniTask.DelayFrame(5);
         _parryCollider.gameObject.SetActive(false);
-
     }
 
     /// <summary>
-    /// パーティクルから被弾したとき呼ばれる。Parry用。
+    /// パリィ成功時に呼ばれる
     /// </summary>
     public void OnParryBullet()
     {
@@ -337,29 +347,23 @@ public class PlayerManager : MonoBehaviour
     }
 
     /// <summary>
-    /// パーティクルから被弾（グレイズ用）したとき呼ばれる
+    /// グレイズ成功時に呼ばれる
     /// </summary>
     public void OnGrazeBullet()
     {
-       
         if (_isPossibleGraze)
         {
             _isPossibleGraze = false;
             _isGrazeTimerStart = true;
-            _uiDataManager.AddScore(_grazeScorePoint);         
-
-
-        }       
+            _uiDataManager.AddScore(_grazeScorePoint);
+        }
     }
 
-
     /// <summary>
-    /// キャラクターにオートで弾を撃たせる
+    /// キャラクターに自動射撃させる
     /// </summary>
     private void PlayCharacterBullet()
     {
-
-        
     }
 
     /// <summary>
@@ -440,3 +444,4 @@ public class PlayerManager : MonoBehaviour
         }
     }
 }
+
