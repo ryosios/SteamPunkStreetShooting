@@ -1,11 +1,12 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UniRx;
 using DG.Tweening;
 using System.Collections;
 
-[CreateAssetMenu]
+[CreateAssetMenu(menuName = "Character Ability/Attack")]
 public class CharacterAbilityAttack : CharacterAbilityBase
 {
+    /// <summary>攻撃用パーティクルPrefab</summary>
     [SerializeField] private ParticleSystem _attackParticle;
 
     /// <summary>
@@ -14,13 +15,27 @@ public class CharacterAbilityAttack : CharacterAbilityBase
     /// <param name="character"> キャラクター </param>
     public override Transform ApplyAbility(CharacterManager character) 
     {
-        var abilityTrans =  Instantiate(_attackParticle.transform,character.CharacterAttachPoint) as Transform;
+        if (character == null || character.CharacterAttachPoint == null)
+        {
+            Debug.LogWarning("Ability target character or attach point is not assigned.");
+            return null;
+        }
+
+        if (_attackParticle == null)
+        {
+            Debug.LogWarning("Attack ability particle is not assigned.");
+            return null;
+        }
+
+        var abilityTrans = Instantiate(_attackParticle.transform, character.CharacterAttachPoint);
         abilityTrans.gameObject.SetActive(true);
         var abilityParticle = abilityTrans.GetComponent<ParticleSystem>();
-        abilityParticle.Play();
+        if (abilityParticle != null)
+        {
+            abilityParticle.Play();
+        }
 
         return abilityTrans;
-    
     }
-
 }
+

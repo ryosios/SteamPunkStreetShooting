@@ -145,6 +145,7 @@ public class PlayerManager : MonoBehaviour
         {
             _characterList[i].gameObject.SetActive(_characterList[i] == _currentActiveCharacter);
         }
+        _currentActiveCharacter.UseAllAbilities();
 
         _currentPlayerIndex = new PlayerIndex();
         _currentPlayerIndex.x = 0;
@@ -281,9 +282,11 @@ public class PlayerManager : MonoBehaviour
             _characterList.Add(_beforeActiveCharacter);
 
             SetParryCollider().Forget();
+            _beforeActiveCharacter.StopAllAbilities();
 
             _beforeActiveCharacter.gameObject.SetActive(true);
             _currentActiveCharacter.gameObject.SetActive(true);
+            _currentActiveCharacter.UseAllAbilities();
 
             // クロスフェード中は前後のキャラクターを同時に表示する
             await UniTask.Delay(TimeSpan.FromSeconds(1f));
@@ -444,4 +447,5 @@ public class PlayerManager : MonoBehaviour
         }
     }
 }
+
 

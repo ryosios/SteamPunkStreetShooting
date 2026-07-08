@@ -4656,7 +4656,7 @@ MonoBehaviour:
   - {fileID: 2079645960}
   _grazeCollider: {fileID: 1188569076}
   _parryCollider: {fileID: 975031987}
-  _parryHitStopTime: 0.06
+  _parryHitStopTime: 0.03
   _parryHitStopTimeScale: 0
   _parryHitStopRecoverTime: 0.08
 --- !u!4 &6786238703539172891

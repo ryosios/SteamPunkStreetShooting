@@ -1,37 +1,40 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UniRx;
 using DG.Tweening;
 using System.Collections;
 using Spine;
+using System.Collections.Generic;
 
 public class CharacterManager : MonoBehaviour
 {
-
-    /// <summary>hp</summary>
+    /// <summary>ç¾åœ¨HP</summary>
     private int _hp = 3;
 
-    /// <summary>Å‘åHP</summary>
+    /// <summary>æœ€å¤§HP</summary>
     private const int MaxHp = 3;
 
-    /// <summary>UŒ‚—Í</summary>
+    /// <summary>æ”»æ’ƒåŠ›</summary>
     [SerializeField] private float _power = 0.1f;
 
-    /// <summary>UŒ‚—Í</summary>
+    /// <summary>æ”»æ’ƒåŠ›</summary>
     public float Power => _power;
 
-    /// <summary>ƒLƒƒƒ‰‚ÌƒAƒ^ƒbƒ`ƒ|ƒCƒ“ƒg</summary>
+    /// <summary>ã‚­ãƒ£ãƒ©ã®ã‚¢ã‚¿ãƒƒãƒãƒã‚¤ãƒ³ãƒˆ</summary>
     [SerializeField] private Transform _characterAttachPoint;
     public Transform CharacterAttachPoint => _characterAttachPoint;
 
-    /// <summary>ƒ[ƒ‹ƒh‚ÌƒAƒ^ƒbƒ`ƒ|ƒCƒ“ƒg</summary>
+    /// <summary>ãƒ¯ãƒ¼ãƒ«ãƒ‰ã®ã‚¢ã‚¿ãƒƒãƒãƒã‚¤ãƒ³ãƒˆ</summary>
     [SerializeField] private Transform _worldAttachPoint;
     public Transform WorldAttachPoint => _worldAttachPoint;
 
-    /// <summary>ƒAƒrƒŠƒeƒB</summary>
+    /// <summary>ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ãŒä½¿ç”¨ã§ãã‚‹ã‚¢ãƒ“ãƒªãƒ†ã‚£</summary>
     [SerializeField] private CharacterAbilityBase[] _characterAbilityBase;
 
+    /// <summary>ç¾åœ¨æœ‰åŠ¹ã«ãªã£ã¦ã„ã‚‹ã‚¢ãƒ“ãƒªãƒ†ã‚£ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹</summary>
+    private readonly List<Transform> _activeAbilityTransList = new();
+
     /// <summary>
-    /// hp‚ğ‰ÁZ‚·‚é
+    /// HPã‚’åŠ ç®—
     /// </summary>
     public CharacterManager AddHp(int value)
     {
@@ -40,19 +43,78 @@ public class CharacterManager : MonoBehaviour
     }
 
     /// <summary>
-    /// UI‚ÌHp‚ğİ’è‚·‚é
+    /// UIã®HPè¡¨ç¤ºã‚’æ›´æ–°
     /// </summary>
-    public CharacterManager SetHpView(UiDataManager uiDataManager,int index)
+    public CharacterManager SetHpView(UiDataManager uiDataManager, int index)
     {
-        uiDataManager.SetHp(_hp,index);
+        uiDataManager.SetHp(_hp, index);
         return this;
     }
 
     /// <summary>
-    /// ƒAƒrƒŠƒeƒB‚ğg—p‚·‚é
+    /// æŒ‡å®šã—ãŸã‚¢ãƒ“ãƒªãƒ†ã‚£ã‚’ä½¿ç”¨
     /// </summary>
-    public void SetAbility(CharacterAbilityBase ability)
+    public Transform UseAbility(int abilityIndex = 0)
     {
-        ability.ApplyAbility(this);
+        if (_characterAbilityBase == null || abilityIndex < 0 || abilityIndex >= _characterAbilityBase.Length)
+        {
+            Debug.LogWarning($"Character ability index is out of range. index: {abilityIndex}");
+            return null;
+        }
+
+        return SetAbility(_characterAbilityBase[abilityIndex]);
+    }
+
+    /// <summary>
+    /// ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹å…¨ã¦ã®ã‚¢ãƒ“ãƒªãƒ†ã‚£ã‚’ä½¿ç”¨
+    /// </summary>
+    public void UseAllAbilities()
+    {
+        if (_characterAbilityBase == null || _characterAbilityBase.Length <= 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _characterAbilityBase.Length; i++)
+        {
+            SetAbility(_characterAbilityBase[i]);
+        }
+    }
+
+    /// <summary>
+    /// ã‚¢ãƒ“ãƒªãƒ†ã‚£ã‚’ä½¿ç”¨
+    /// </summary>
+    public Transform SetAbility(CharacterAbilityBase ability)
+    {
+        if (ability == null)
+        {
+            Debug.LogWarning("Character ability is not assigned.");
+            return null;
+        }
+
+        Transform abilityTrans = ability.ApplyAbility(this);
+        if (abilityTrans != null)
+        {
+            _activeAbilityTransList.Add(abilityTrans);
+        }
+
+        return abilityTrans;
+    }
+
+    /// <summary>
+    /// ç¾åœ¨æœ‰åŠ¹ãªã‚¢ãƒ“ãƒªãƒ†ã‚£ã‚’å…¨ã¦åœæ­¢
+    /// </summary>
+    public void StopAllAbilities()
+    {
+        for (int i = _activeAbilityTransList.Count - 1; i >= 0; i--)
+        {
+            Transform abilityTrans = _activeAbilityTransList[i];
+            if (abilityTrans != null)
+            {
+                Destroy(abilityTrans.gameObject);
+            }
+
+            _activeAbilityTransList.RemoveAt(i);
+        }
     }
 }
