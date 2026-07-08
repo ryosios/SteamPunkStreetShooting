@@ -3,8 +3,8 @@ using UniRx;
 using DG.Tweening;
 using System.Collections;
 
-[CreateAssetMenu(menuName = "Character Ability/Attack")]
-public class CharacterAbilityAttack : CharacterAbilityBase
+[CreateAssetMenu(menuName = "Character Ability/Attack_CharacterAttach")]
+public class CharacterAbilityAttack_CharacterAttach : CharacterAbilityBase
 {
     /// <summary>攻撃用パーティクルPrefab</summary>
     [SerializeField] private ParticleSystem _attackParticle;

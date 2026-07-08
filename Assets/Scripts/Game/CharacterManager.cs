@@ -24,7 +24,7 @@ public class CharacterManager : MonoBehaviour
     public Transform CharacterAttachPoint => _characterAttachPoint;
 
     /// <summary>ワールドのアタッチポイント</summary>
-    [SerializeField] private Transform _worldAttachPoint;
+    private Transform _worldAttachPoint;
     public Transform WorldAttachPoint => _worldAttachPoint;
 
     /// <summary>キャラクターが使用できるアビリティ</summary>
@@ -32,6 +32,12 @@ public class CharacterManager : MonoBehaviour
 
     /// <summary>現在有効になっているアビリティのインスタンス</summary>
     private readonly List<Transform> _activeAbilityTransList = new();
+
+    private void Awake()
+    {
+        //ワールドアタッチポイント取得
+        _worldAttachPoint = GameObject.FindWithTag("AttachPoint").transform;
+    }
 
     /// <summary>
     /// HPを加算

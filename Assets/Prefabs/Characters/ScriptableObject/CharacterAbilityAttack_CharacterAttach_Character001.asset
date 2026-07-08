@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 63175abbd08df8f44bcb8bd85e3fb24b, type: 3}
-  m_Name: CharacterAbilityAttack_Character001
+  m_Name: CharacterAbilityAttack_CharacterAttach_Character001
   m_EditorClassIdentifier: 
   _attackParticle: {fileID: 47543473859972685, guid: 6bf5dd18fa855af4daa9bd73e1d90caf, type: 3}
