@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9be4dca257f2ffe4b99d7b9d48342a59, type: 3}
   m_Name: CharacterAbilityAttack_WorldAttach_Character002
   m_EditorClassIdentifier: 
+  _destroyTime: 2
   _attackParticle: {fileID: 47543473859972685, guid: 04461c70f74e9c445bf6f828e069c493, type: 3}

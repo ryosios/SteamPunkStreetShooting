@@ -143,7 +143,7 @@ public class PlayerManager : MonoBehaviour
         _currentActiveCharacter = _characterList[0];
         for (int i = 0; i < _characterList.Count; i++)
         {
-            _characterList[i].gameObject.SetActive(_characterList[i] == _currentActiveCharacter);
+            _characterList[i].SetActivateObjectActive(_characterList[i] == _currentActiveCharacter);
         }
         _currentActiveCharacter.UseAllAbilities();
 
@@ -282,16 +282,15 @@ public class PlayerManager : MonoBehaviour
             _characterList.Add(_beforeActiveCharacter);
 
             SetParryCollider().Forget();
-            _beforeActiveCharacter.StopAllAbilities();
 
-            _beforeActiveCharacter.gameObject.SetActive(true);
-            _currentActiveCharacter.gameObject.SetActive(true);
+            _beforeActiveCharacter.SetActivateObjectActive(true);
+            _currentActiveCharacter.SetActivateObjectActive(true);
             _currentActiveCharacter.UseAllAbilities();
 
             // クロスフェード中は前後のキャラクターを同時に表示する
             await UniTask.Delay(TimeSpan.FromSeconds(1f));
 
-            _beforeActiveCharacter.gameObject.SetActive(false);
+            _beforeActiveCharacter.SetActivateObjectActive(false);
             _isUpdateCharacterChange = false;
         }
     }

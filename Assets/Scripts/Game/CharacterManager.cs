@@ -33,10 +33,31 @@ public class CharacterManager : MonoBehaviour
     /// <summary>現在有効になっているアビリティのインスタンス</summary>
     private readonly List<Transform> _activeAbilityTransList = new();
 
+    /// <summary>キャラ切り替えで非アクティブやアクティブにするオブジェクト</summary>
+    [SerializeField] private GameObject _activateObject;
+
     private void Awake()
     {
         //ワールドアタッチポイント取得
-        _worldAttachPoint = GameObject.FindWithTag("AttachPoint").transform;
+        GameObject attachPointObject = GameObject.FindWithTag("AttachPoint");
+        if (attachPointObject != null)
+        {
+            _worldAttachPoint = attachPointObject.transform;
+        }
+    }
+
+    /// <summary>
+    /// キャラ画像やコリジョンを含む表示用オブジェクトを切り替え
+    /// </summary>
+    public void SetActivateObjectActive(bool isActive)
+    {
+        if (_activateObject == null)
+        {
+            Debug.LogWarning("Activate object is not assigned.");
+            return;
+        }
+
+        _activateObject.SetActive(isActive);
     }
 
     /// <summary>
@@ -98,6 +119,8 @@ public class CharacterManager : MonoBehaviour
             return null;
         }
 
+        CleanupDestroyedAbilities();
+
         Transform abilityTrans = ability.ApplyAbility(this);
         if (abilityTrans != null)
         {
@@ -121,6 +144,20 @@ public class CharacterManager : MonoBehaviour
             }
 
             _activeAbilityTransList.RemoveAt(i);
+        }
+    }
+
+    /// <summary>
+    /// Destroy済みのアビリティ参照をリストから削除
+    /// </summary>
+    private void CleanupDestroyedAbilities()
+    {
+        for (int i = _activeAbilityTransList.Count - 1; i >= 0; i--)
+        {
+            if (_activeAbilityTransList[i] == null)
+            {
+                _activeAbilityTransList.RemoveAt(i);
+            }
         }
     }
 }

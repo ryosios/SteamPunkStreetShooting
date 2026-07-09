@@ -1,5 +1,38 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1831895953163865299
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4869912039294039059}
+  m_Layer: 6
+  m_Name: ActivateObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4869912039294039059
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1831895953163865299}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3265440995292376488}
+  - {fileID: 8968474987549671045}
+  m_Father: {fileID: 6714380648878219322}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2503819668506897394
 GameObject:
   m_ObjectHideFlags: 0
@@ -30,7 +63,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3026577737327817647}
-  m_Father: {fileID: 6714380648878219322}
+  m_Father: {fileID: 4869912039294039059}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2875685638583512722
 GameObject:
@@ -88,12 +121,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4293356204616600457}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6714380648878219322}
+  m_Father: {fileID: 4869912039294039059}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &7087646389282821911
 SphereCollider:
@@ -146,8 +179,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3265440995292376488}
-  - {fileID: 8968474987549671045}
+  - {fileID: 4869912039294039059}
   - {fileID: 4282347970961747437}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -163,11 +195,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9dcdb3c64d0ce3438d9ec2c5cd027b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _id: 0
   _power: 0.1
   _characterAttachPoint: {fileID: 4282347970961747437}
-  _worldAttachPoint: {fileID: 0}
   _characterAbilityBase: []
+  _activateObject: {fileID: 1831895953163865299}
 --- !u!1 &7445719497440216972
 GameObject:
   m_ObjectHideFlags: 0
