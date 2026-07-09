@@ -24,7 +24,7 @@ public class TweenAnimationTemplate : TweenAnimationBase
         await _sequence.AsyncWaitForCompletion().AsUniTask().AttachExternalCancellation(token);
 
     }
-    protected override async UniTask OutAnimAsync(CancellationToken cancellationToken)
+    protected override async UniTask OutAnimAsync(CancellationToken token)
     {
         _sequence = DOTween.Sequence();
 
