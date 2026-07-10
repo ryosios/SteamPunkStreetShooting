@@ -5,8 +5,9 @@ using System.Collections;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
-public class PlayerManager : MonoBehaviour
+public class PlayerPresenter : MonoBehaviour
 {
     private enum DirectionKind
     {
@@ -19,9 +20,6 @@ public class PlayerManager : MonoBehaviour
     /// <summary>現在の入力方向</summary>
     private DirectionKind _directionKind;
 
-    /// <summary>UIデータ管理</summary>
-    [SerializeField] private UiDataManager _uiDataManager;
-
     /// <summary>ボード管理</summary>
     [SerializeField] private BoardManager _boardManager;
 
@@ -29,10 +27,12 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] private Rigidbody _thisRigid;
 
     /// <summary>背景管理</summary>
-    [SerializeField] private BgManager _bgManager;
+    [FormerlySerializedAs("_bgManager")]
+    [SerializeField] private BgPresenter _bgPresenter;
 
     /// <summary>使用可能なキャラクター配列</summary>
-    [SerializeField] private CharacterManager[] _characterManagerArray = new CharacterManager[3];
+    [FormerlySerializedAs("_characterManagerArray")]
+    [SerializeField] private CharacterPresenter[] _characterPresenters = new CharacterPresenter[3];
 
     /// <summary>グレイズ判定用コライダー</summary>
     [SerializeField] private Transform _grazeCollider;
@@ -62,15 +62,15 @@ public class PlayerManager : MonoBehaviour
     private bool _isPossibleCharacterChange = true;
 
     /// <summary>キャラクター変更候補のリスト</summary>
-    private List<CharacterManager> _characterList = new List<CharacterManager>();
+    private List<CharacterPresenter> _characterList = new List<CharacterPresenter>();
 
     /// <summary>現在アクティブなキャラクター</summary>
-    private CharacterManager _currentActiveCharacter;
+    private CharacterPresenter _currentActiveCharacter;
 
-    public CharacterManager CurrentActiveCharacter => _currentActiveCharacter;
+    public CharacterPresenter CurrentActiveCharacter => _currentActiveCharacter;
 
     /// <summary>前回アクティブだったキャラクター</summary>
-    private CharacterManager _beforeActiveCharacter;
+    private CharacterPresenter _beforeActiveCharacter;
 
     /// <summary>キャラクター変更中かどうか</summary>
     private bool _isUpdateCharacterChange;
@@ -110,33 +110,35 @@ public class PlayerManager : MonoBehaviour
     /// <summary>ヒットストップ中かどうか</summary>
     private bool _isHitStopping;
 
-    /// <summary>現在のプレイヤーのボードインデックス</summary>
-    public struct PlayerIndex
-    {
-        public int x;
-        public int y;
-    }
+    /// <summary>現在のプレイヤーのボードインデックスModel</summary>
+    private BoardPositionModel _currentPlayerIndex;
 
-    private PlayerIndex _currentPlayerIndex;
-    private PlayerIndex _beforePlayerIndex;
+    /// <summary>前回のプレイヤーのボードインデックスModel</summary>
+    private BoardPositionModel _beforePlayerIndex;
+
+    /// <summary>キャラクターHPが変わったときに通知</summary>
+    public event Action<int, int> CharacterHpChanged;
+
+    /// <summary>スコアを加算したいときに通知</summary>
+    public event Action<int> ScoreAdded;
 
     private void Awake()
     {
         _characterList.Clear();
-        for (int i = 0; i < _characterManagerArray.Length; i++)
+        for (int i = 0; i < _characterPresenters.Length; i++)
         {
-            CharacterManager characterManager = _characterManagerArray[i];
-            if (characterManager == null || _characterList.Contains(characterManager))
+            CharacterPresenter characterPresenter = _characterPresenters[i];
+            if (characterPresenter == null || _characterList.Contains(characterPresenter))
             {
                 continue;
             }
 
-            _characterList.Add(characterManager);
+            _characterList.Add(characterPresenter);
         }
 
         if (_characterList.Count <= 0)
         {
-            Debug.LogWarning("CharacterManager is not assigned.");
+            Debug.LogWarning("CharacterPresenter array is not assigned.");
             return;
         }
 
@@ -147,11 +149,9 @@ public class PlayerManager : MonoBehaviour
         }
         _currentActiveCharacter.UseAllAbilities();
 
-        _currentPlayerIndex = new PlayerIndex();
-        _currentPlayerIndex.x = 0;
-        _currentPlayerIndex.y = 2;
+        _currentPlayerIndex = new BoardPositionModel(0, 2);
 
-        _initBgSpeed = _bgManager.GetSpeed();
+        _initBgSpeed = _bgPresenter.GetSpeed();
 
         _parryCollider.gameObject.SetActive(false);
     }
@@ -259,10 +259,10 @@ public class PlayerManager : MonoBehaviour
     private void SetBgSpeed(float speed)
     {
         var afterSpeed = _initBgSpeed + speed;
-        _bgManager.SetSpeed(afterSpeed);
+        _bgPresenter.SetSpeed(afterSpeed);
         DOVirtual.Float(afterSpeed, _initBgSpeed, 0.35f, value =>
         {
-            _bgManager.SetSpeed(value);
+            _bgPresenter.SetSpeed(value);
         }).SetEase(Ease.OutSine);
     }
 
@@ -307,24 +307,25 @@ public class PlayerManager : MonoBehaviour
             _isHitTimerStart = true;
 
             int characterIndex = GetCharacterIndex(_currentActiveCharacter);
-            _currentActiveCharacter.AddHp(-1).SetHpView(_uiDataManager, characterIndex);
+            _currentActiveCharacter.AddHp(-1);
+            CharacterHpChanged?.Invoke(_currentActiveCharacter.Hp, characterIndex);
         }
     }
 
     /// <summary>
     /// UI表示に使う固定のキャラインデックスを取得
     /// </summary>
-    private int GetCharacterIndex(CharacterManager characterManager)
+    private int GetCharacterIndex(CharacterPresenter characterPresenter)
     {
-        for (int i = 0; i < _characterManagerArray.Length; i++)
+        for (int i = 0; i < _characterPresenters.Length; i++)
         {
-            if (_characterManagerArray[i] == characterManager)
+            if (_characterPresenters[i] == characterPresenter)
             {
                 return i;
             }
         }
 
-        Debug.LogWarning("Current character is not found in CharacterManager array.");
+        Debug.LogWarning("Current character is not found in CharacterPresenter array.");
         return 0;
     }
 
@@ -344,7 +345,7 @@ public class PlayerManager : MonoBehaviour
     public void OnParryBullet()
     {
         Debug.Log("パリィ");
-        _uiDataManager.AddScore(_parryScorePoint);
+        ScoreAdded?.Invoke(_parryScorePoint);
         PlayParryHitStop().Forget();
     }
 
@@ -357,7 +358,7 @@ public class PlayerManager : MonoBehaviour
         {
             _isPossibleGraze = false;
             _isGrazeTimerStart = true;
-            _uiDataManager.AddScore(_grazeScorePoint);
+            ScoreAdded?.Invoke(_grazeScorePoint);
         }
     }
 
@@ -446,5 +447,8 @@ public class PlayerManager : MonoBehaviour
         }
     }
 }
+
+
+
 
 

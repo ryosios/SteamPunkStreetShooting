@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UniRx;
 using DG.Tweening;
 using System.Collections;
@@ -10,7 +10,7 @@ public class ParticleHitDetector : MonoBehaviour
 
     private readonly List<ParticleSystem.Particle> _insideParticles = new();
 
-    private PlayerManager _playerManager;
+    private PlayerPresenter _playerPresenter;
 
     private void Awake()
     {
@@ -19,7 +19,7 @@ public class ParticleHitDetector : MonoBehaviour
             _particleSystem = GetComponent<ParticleSystem>();
         }
 
-        _playerManager = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerManager>();
+        _playerPresenter = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerPresenter>();
 
         var trigger = _particleSystem.trigger;
 
@@ -27,22 +27,22 @@ public class ParticleHitDetector : MonoBehaviour
         trigger.SetCollider(0, null);
 
         // 0番に登録
-        trigger.SetCollider(0, _playerManager.GrazeCollider);
+        trigger.SetCollider(0, _playerPresenter.GrazeCollider);
     }
 
     private void OnParticleCollision(GameObject other)
     {
-        PlayerManager player = other.GetComponentInParent<PlayerManager>();
-        if (_playerManager == null) return;
+        PlayerPresenter player = other.GetComponentInParent<PlayerPresenter>();
+        if (_playerPresenter == null) return;
 
-        if (_playerManager.IsParryActive)
+        if (_playerPresenter.IsParryActive)
         {
-            _playerManager.OnParryBullet();
+            _playerPresenter.OnParryBullet();
             
         }
         else
         {
-            _playerManager.OnHitBullet();
+            _playerPresenter.OnHitBullet();
         }
 
     }
@@ -57,9 +57,10 @@ public class ParticleHitDetector : MonoBehaviour
         if (count <= 0) return;
 
         // かすり通知
-        _playerManager.OnGrazeBullet();       
+        _playerPresenter.OnGrazeBullet();       
 
 
     }
 
 }
+

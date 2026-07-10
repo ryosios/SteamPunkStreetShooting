@@ -13,7 +13,7 @@ public class CharacterAbilityShield : CharacterAbilityBase
     /// アビリティを適用
     /// </summary>
     /// <param name="character"> キャラクター </param>
-    public override Transform ApplyAbility(CharacterManager character) 
+    public override Transform ApplyAbility(CharacterPresenter character) 
     {
         if (character == null)
         {
@@ -34,4 +34,5 @@ public class CharacterAbilityShield : CharacterAbilityBase
         return abilityTrans;
     }
 }
+
 

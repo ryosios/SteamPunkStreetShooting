@@ -1,10 +1,7 @@
-using UnityEngine;
-using UniRx;
-using DG.Tweening;
-using System.Collections;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 
-public class UiCharacterStatusManager : MonoBehaviour
+public class CharacterStatusView : MonoBehaviour
 {
     [SerializeField] private Image[] _hpIconArray;
 
@@ -13,7 +10,7 @@ public class UiCharacterStatusManager : MonoBehaviour
     private int _currentHp = 0;
 
     /// <summary>
-    /// UI‚ÌHp‚ğİ’è
+    /// HPè¡¨ç¤ºå€¤ã‚’è¨­å®š
     /// </summary>
     public void SetHpValue(int hpValue)
     {
@@ -22,27 +19,21 @@ public class UiCharacterStatusManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Hp‚ÌƒAƒCƒRƒ“•\¦‚ğİ’è
+    /// HPã‚¢ã‚¤ã‚³ãƒ³è¡¨ç¤ºã‚’æ›´æ–°
     /// </summary>
     private void SetHpView()
     {
         for (int i = 0; i < _hpIconArray.Length; i++)
         {
-            _hpIconArray[i].gameObject.SetActive(false);
-            if(i < _currentHp)
-            {
-                _hpIconArray[i].gameObject.SetActive(true);
-            }
+            _hpIconArray[i].gameObject.SetActive(i < _currentHp);
         }
     }
 
     /// <summary>
-    /// ƒLƒƒƒ‰ƒNƒ^[‚ÌƒAƒCƒRƒ“‚ğİ’è
+    /// ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã‚¢ã‚¤ã‚³ãƒ³ã‚’è¨­å®š
     /// </summary>
     private void SetFaceIcon()
     {
-       
     }
-
-
 }
+

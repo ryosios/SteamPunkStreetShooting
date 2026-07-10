@@ -4,8 +4,9 @@ using DG.Tweening;
 using System.Collections;
 using Cysharp.Threading.Tasks;
 using System;
+using UnityEngine.Serialization;
 
-public class BossManager : MonoBehaviour
+public class BossPresenter : MonoBehaviour
 {
     private enum BossActionState
     {
@@ -19,14 +20,12 @@ public class BossManager : MonoBehaviour
     /// <summary>現在のボス行動状態</summary>
     private BossActionState _bossActionState = BossActionState.Default;
 
-    /// <summary>ボスの防御力。キャラクター攻撃力を割ってHP減少量を決める</summary>
-    private float _guard = 10f;
-
-    /// <summary>UIデータ管理</summary>
-    [SerializeField] private UiDataManager _uiDataManager;
+    /// <summary>ボスの状態Model</summary>
+    [SerializeField] private BossModel _model = new BossModel();
 
     /// <summary>プレイヤー管理</summary>
-    [SerializeField] private PlayerManager _playerManager;
+    [FormerlySerializedAs("_playerManager")]
+    [SerializeField] private PlayerPresenter _playerPresenter;
 
     /// <summary>ボスのRigidbody</summary>
     [SerializeField] private Rigidbody _thisRigid;
@@ -55,26 +54,20 @@ public class BossManager : MonoBehaviour
     /// <summary>ボス移動Tween</summary>
     private Tween _moveTween;
 
-    /// <summary>ボスの現在ボードインデックス</summary>
-    public struct BossIndex
-    {
-        public int x;
-        public int y;
-    }
+    /// <summary>ボスの現在ボードインデックスModel</summary>
+    private BoardPositionModel _currentBossIndex;
 
-    private BossIndex _currentBossIndex;
-    private BossIndex _beforeBossIndex;
+    /// <summary>ボスの前回ボードインデックスModel</summary>
+    private BoardPositionModel _beforeBossIndex;
+
+    /// <summary>ボスHPを増減させたいときに通知</summary>
+    public event Action<float> BossHpAdded;
 
     private void Awake()
     {
-        if (_uiDataManager == null)
+        if (_playerPresenter == null)
         {
-            _uiDataManager = FindFirstObjectByType<UiDataManager>();
-        }
-
-        if (_playerManager == null)
-        {
-            _playerManager = FindFirstObjectByType<PlayerManager>();
+            _playerPresenter = FindFirstObjectByType<PlayerPresenter>();
         }
 
         if (_thisRigid == null)
@@ -92,11 +85,10 @@ public class BossManager : MonoBehaviour
             _boardManager = FindFirstObjectByType<BoardManager>();
         }
 
-        _currentBossIndex = new BossIndex
-        {
-            x = Mathf.Clamp(_moveIndexRightLimit, _moveIndexLeftLimit, _moveIndexRightLimit),
-            y = Mathf.Clamp(2, _moveIndexUpLimit, _moveIndexDownLimit)
-        };
+        _currentBossIndex = new BoardPositionModel(
+            Mathf.Clamp(_moveIndexRightLimit, _moveIndexLeftLimit, _moveIndexRightLimit),
+            Mathf.Clamp(2, _moveIndexUpLimit, _moveIndexDownLimit)
+        );
     }
 
     private async void Start()
@@ -188,16 +180,18 @@ public class BossManager : MonoBehaviour
     /// </summary>
     public void OnHitBullet()
     {
-        if (_uiDataManager == null || _playerManager == null || _playerManager.CurrentActiveCharacter == null)
+        if (_playerPresenter == null || _playerPresenter.CurrentActiveCharacter == null)
         {
             Debug.LogWarning("Boss damage references are not assigned.");
             return;
         }
 
-        float safeGuard = Mathf.Max(0.0001f, _guard);
-        float activeCharacterPower = _playerManager.CurrentActiveCharacter.Power;
-        float normalizedDamage = activeCharacterPower / safeGuard;
-        _uiDataManager.AddBossHp(-normalizedDamage);
+        float activeCharacterPower = _playerPresenter.CurrentActiveCharacter.Power;
+        float normalizedDamage = _model.CalculateNormalizedDamage(activeCharacterPower);
+        BossHpAdded?.Invoke(-normalizedDamage);
     }
 }
+
+
+
 

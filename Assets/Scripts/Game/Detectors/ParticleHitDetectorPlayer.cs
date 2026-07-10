@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UniRx;
 using DG.Tweening;
 using System.Collections;
@@ -28,13 +28,13 @@ public class ParticleHitDetectorPlayer : MonoBehaviour
 
     private void OnParticleCollision(GameObject other)
     {
-        BossManager hitBossManager = other.GetComponentInParent<BossManager>();
-        if (hitBossManager == null)
+        BossPresenter hitBossPresenter = other.GetComponentInParent<BossPresenter>();
+        if (hitBossPresenter == null)
         {
             return;
         }
 
-        hitBossManager.OnHitBullet();
+        hitBossPresenter.OnHitBullet();
 
     }
 
@@ -49,9 +49,10 @@ public class ParticleHitDetectorPlayer : MonoBehaviour
         if (count <= 0) return;
 
         // かすり通知
-        _playerManager.OnGrazeBullet();       
+        _playerPresenter.OnGrazeBullet();       
 
 
     }
     */
 }
+

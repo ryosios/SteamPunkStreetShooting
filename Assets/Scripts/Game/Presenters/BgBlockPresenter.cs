@@ -1,7 +1,7 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class BgBlock : MonoBehaviour
+public class BgBlockPresenter : MonoBehaviour
 {
     /// <summary>thisTransform</summary>
     [SerializeField] private Transform _thisTrans;
@@ -52,7 +52,7 @@ public class BgBlock : MonoBehaviour
     /// <summary>
     /// BGBlockを移動
     /// </summary>
-    public BgBlock SetMove(float speed)
+    public BgBlockPresenter SetMove(float speed)
     {
         _speed = speed;
 
@@ -80,3 +80,4 @@ public class BgBlock : MonoBehaviour
             RigidbodyConstraints.FreezeRotation;
     }
 }
+

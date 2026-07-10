@@ -1,10 +1,10 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class BgManager : MonoBehaviour
+public class BgPresenter : MonoBehaviour
 {
     /// <summary>BGBlockのインスタンス</summary>
-    [SerializeField] private BgBlock[] _blockBgBlock;
+    [SerializeField] private BgBlockPresenter[] _blockBgBlock;
 
     /// <summary>Attach</summary>
     [SerializeField] private Transform _attachTrans;
@@ -28,7 +28,7 @@ public class BgManager : MonoBehaviour
     [SerializeField] private int _initialBlockCount = 2;
 
     /// <summary>現在スクロール中のBGBlock一覧</summary>
-    private readonly List<BgBlock> _activeBlocks = new List<BgBlock>();
+    private readonly List<BgBlockPresenter> _activeBlocks = new List<BgBlockPresenter>();
 
     /// <summary>実際に次のブロックを置く間隔</summary>
     private float BlockInterval => Mathf.Max(0.01f, _offsetPos - _blockOverlap);
@@ -73,7 +73,7 @@ public class BgManager : MonoBehaviour
                 RemoveLeftmostBlock();
             }
 
-            BgBlock block = SetBlock(rightmostPosX + BlockInterval);
+            BgBlockPresenter block = SetBlock(rightmostPosX + BlockInterval);
             if (block == null)
             {
                 break;
@@ -120,7 +120,7 @@ public class BgManager : MonoBehaviour
     /// <summary>
     /// BGBlockを生成
     /// </summary>
-    private BgBlock SetBlock(float posX)
+    private BgBlockPresenter SetBlock(float posX)
     {
         if (_blockBgBlock == null || _blockBgBlock.Length == 0)
         {
@@ -145,7 +145,7 @@ public class BgManager : MonoBehaviour
     /// </summary>
     private void RemoveLeftmostBlock()
     {
-        BgBlock leftmostBlock = GetLeftmostBlock();
+        BgBlockPresenter leftmostBlock = GetLeftmostBlock();
         if (leftmostBlock == null)
         {
             return;
@@ -163,7 +163,7 @@ public class BgManager : MonoBehaviour
     {
         _activeBlocks.RemoveAll(block => block == null);
 
-        foreach (BgBlock block in _activeBlocks)
+        foreach (BgBlockPresenter block in _activeBlocks)
         {
             block.SetMove(_speed);
         }
@@ -190,14 +190,14 @@ public class BgManager : MonoBehaviour
     /// <summary>
     /// 生成済みBGBlockのうち、一番左にあるブロックを取得する。
     /// </summary>
-    private BgBlock GetLeftmostBlock()
+    private BgBlockPresenter GetLeftmostBlock()
     {
         if (_activeBlocks.Count == 0)
         {
             return null;
         }
 
-        BgBlock leftmostBlock = _activeBlocks[0];
+        BgBlockPresenter leftmostBlock = _activeBlocks[0];
 
         for (int i = 1; i < _activeBlocks.Count; i++)
         {
@@ -210,3 +210,4 @@ public class BgManager : MonoBehaviour
         return leftmostBlock;
     }
 }
+

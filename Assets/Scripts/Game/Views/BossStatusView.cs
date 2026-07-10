@@ -1,19 +1,16 @@
-using UnityEngine;
-using UniRx;
-using DG.Tweening;
-using System.Collections;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class UiBossStatusManager : MonoBehaviour
+public class BossStatusView : MonoBehaviour
 {
-    /// <summary>ƒ{ƒX‚ÌHpSlider</summary>
+    /// <summary>ãƒœã‚¹HP Slider</summary>
     [SerializeField] private Slider _hpSlider;
 
-    /// <summary>ƒ{ƒX‚Ì–¼‘O‚ÌƒeƒLƒXƒg</summary>
+    /// <summary>ãƒœã‚¹åãƒ†ã‚­ã‚¹ãƒˆ</summary>
     [SerializeField] private TextMeshProUGUI _nameText;
 
-    private float _currentHpValue = 1;
+    private float _currentHpValue = 1f;
 
     private void Awake()
     {
@@ -21,7 +18,7 @@ public class UiBossStatusManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒXƒ‰ƒCƒ_[‚Ì’l‚ğæ“¾
+    /// ã‚¹ãƒ©ã‚¤ãƒ€ãƒ¼å€¤ã‚’å–å¾—
     /// </summary>
     public float GetHpValue()
     {
@@ -29,7 +26,7 @@ public class UiBossStatusManager : MonoBehaviour
     }
 
     /// <summary>
-    /// UI‚ÌHp‚ğİ’è
+    /// HPè¡¨ç¤ºå€¤ã‚’è¨­å®š
     /// </summary>
     public void SetHpValue(float hpValue)
     {
@@ -42,22 +39,14 @@ public class UiBossStatusManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒ{ƒX‚Ì–¼‘O‚ğİ’è
+    /// ãƒœã‚¹åã‚’è¨­å®š
     /// </summary>
     public void SetBossName(string name)
     {
-
+        if (_nameText != null)
+        {
+            _nameText.text = name;
+        }
     }
-
-
-
-    /// <summary>
-    /// ƒLƒƒƒ‰ƒNƒ^[‚ÌƒAƒCƒRƒ“‚ğİ’è
-    /// </summary>
-    private void SetFaceIcon()
-    {
-       
-    }
-
-
 }
+

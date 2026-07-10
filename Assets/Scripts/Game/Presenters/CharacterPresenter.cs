@@ -5,19 +5,16 @@ using System.Collections;
 using Spine;
 using System.Collections.Generic;
 
-public class CharacterManager : MonoBehaviour
+public class CharacterPresenter : MonoBehaviour
 {
+    /// <summary>キャラクターの状態Model</summary>
+    [SerializeField] private CharacterModel _model = new CharacterModel();
+
+    /// <summary>攻撃力</summary>
+    public float Power => _model.Power;
+
     /// <summary>現在HP</summary>
-    private int _hp = 3;
-
-    /// <summary>最大HP</summary>
-    private const int MaxHp = 3;
-
-    /// <summary>攻撃力</summary>
-    [SerializeField] private float _power = 0.1f;
-
-    /// <summary>攻撃力</summary>
-    public float Power => _power;
+    public int Hp => _model.Hp;
 
     /// <summary>キャラのアタッチポイント</summary>
     [SerializeField] private Transform _characterAttachPoint;
@@ -63,18 +60,9 @@ public class CharacterManager : MonoBehaviour
     /// <summary>
     /// HPを加算
     /// </summary>
-    public CharacterManager AddHp(int value)
+    public CharacterPresenter AddHp(int value)
     {
-        _hp = Mathf.Clamp(_hp + value, 0, MaxHp);
-        return this;
-    }
-
-    /// <summary>
-    /// UIのHP表示を更新
-    /// </summary>
-    public CharacterManager SetHpView(UiDataManager uiDataManager, int index)
-    {
-        uiDataManager.SetHp(_hp, index);
+        _model.AddHp(value);
         return this;
     }
 
@@ -161,3 +149,4 @@ public class CharacterManager : MonoBehaviour
         }
     }
 }
+

@@ -3,8 +3,8 @@ using UniRx;
 using DG.Tweening;
 using System.Collections;
 
-[CreateAssetMenu(menuName = "Character Ability/Attack_WorldAttach")]
-public class CharacterAbilityAttack_WorldAttach : CharacterAbilityBase
+[CreateAssetMenu(menuName = "Character Ability/Attack_CharacterAttach")]
+public class CharacterAbilityAttack_CharacterAttach : CharacterAbilityBase
 {
     /// <summary>攻撃用パーティクルPrefab</summary>
     [SerializeField] private ParticleSystem _attackParticle;
@@ -13,7 +13,7 @@ public class CharacterAbilityAttack_WorldAttach : CharacterAbilityBase
     /// アビリティを適用
     /// </summary>
     /// <param name="character"> キャラクター </param>
-    public override Transform ApplyAbility(CharacterManager character) 
+    public override Transform ApplyAbility(CharacterPresenter character) 
     {
         if (character == null || character.CharacterAttachPoint == null)
         {
@@ -27,7 +27,7 @@ public class CharacterAbilityAttack_WorldAttach : CharacterAbilityBase
             return null;
         }
 
-        var abilityTrans = Instantiate(_attackParticle.transform, character.WorldAttachPoint);
+        var abilityTrans = Instantiate(_attackParticle.transform, character.CharacterAttachPoint);
         abilityTrans.gameObject.SetActive(true);
         var abilityParticle = abilityTrans.GetComponent<ParticleSystem>();
         if (abilityParticle != null)
@@ -39,4 +39,5 @@ public class CharacterAbilityAttack_WorldAttach : CharacterAbilityBase
         return abilityTrans;
     }
 }
+
 
