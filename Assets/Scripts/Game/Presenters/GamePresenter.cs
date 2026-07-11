@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using DG.Tweening;
+using UniRx;
 using UnityEngine.Serialization;
 
 public class GamePresenter : MonoBehaviour
@@ -25,6 +27,19 @@ public class GamePresenter : MonoBehaviour
     /// <summary>ボスPresenter</summary>
     [SerializeField] private BossPresenter _bossPresenter;
 
+    /// <summary>背景Presenter</summary>
+    [FormerlySerializedAs("_bgManager")]
+    [SerializeField] private BgPresenter _bgPresenter;
+
+    /// <summary>背景速度を一時変更したあと基準速度へ戻す時間</summary>
+    [SerializeField] private float _bgSpeedRecoverTime = 0.35f;
+
+    /// <summary>背景の基準スクロール速度</summary>
+    private float _baseBgSpeed;
+
+    /// <summary>背景速度変更Tween</summary>
+    private Tween _bgSpeedTween;
+
     private void Awake()
     {
         if (_gameHudView == null)
@@ -42,12 +57,22 @@ public class GamePresenter : MonoBehaviour
             _bossPresenter = FindFirstObjectByType<BossPresenter>();
         }
 
+        if (_bgPresenter == null)
+        {
+            _bgPresenter = FindFirstObjectByType<BgPresenter>();
+        }
+
+        if (_bgPresenter != null)
+        {
+            _baseBgSpeed = _bgPresenter.GetSpeed();
+        }
+
         RegisterPresenterEvents();
     }
 
     private void OnDestroy()
     {
-        UnregisterPresenterEvents();
+        _bgSpeedTween?.Kill();
     }
 
     /// <summary>
@@ -57,30 +82,28 @@ public class GamePresenter : MonoBehaviour
     {
         if (_playerPresenter != null)
         {
-            _playerPresenter.CharacterHpChanged += SetCharacterHp;
-            _playerPresenter.ScoreAdded += AddScore;
+            _playerPresenter.CharacterHpChanged
+                .Subscribe(value => SetCharacterHp(value.Hp, value.CharacterIndex))
+                .AddTo(this);
+
+            _playerPresenter.ScoreAdded
+                .Subscribe(AddScore)
+                .AddTo(this);
+
+            _playerPresenter.BgSpeedOffsetRequested
+                .Subscribe(SetTemporaryBgSpeedOffset)
+                .AddTo(this);
         }
 
         if (_bossPresenter != null)
         {
-            _bossPresenter.BossHpAdded += AddBossHp;
-        }
-    }
+            _bossPresenter.BossHpAdded
+                .Subscribe(AddBossHp)
+                .AddTo(this);
 
-    /// <summary>
-    /// 各Presenterからのゲームイベント購読を解除
-    /// </summary>
-    private void UnregisterPresenterEvents()
-    {
-        if (_playerPresenter != null)
-        {
-            _playerPresenter.CharacterHpChanged -= SetCharacterHp;
-            _playerPresenter.ScoreAdded -= AddScore;
-        }
-
-        if (_bossPresenter != null)
-        {
-            _bossPresenter.BossHpAdded -= AddBossHp;
+            _bossPresenter.BossHitBulletRequested
+                .Subscribe(_ => ApplyPlayerDamageToBoss())
+                .AddTo(this);
         }
     }
 
@@ -121,6 +144,42 @@ public class GamePresenter : MonoBehaviour
         }
 
         _gameHudView.AddBossHp(hp);
+    }
+
+    /// <summary>
+    /// 現在のプレイヤー攻撃力を使ってボスにダメージを適用
+    /// </summary>
+    private void ApplyPlayerDamageToBoss()
+    {
+        if (_playerPresenter == null || _bossPresenter == null)
+        {
+            return;
+        }
+
+        _bossPresenter.ApplyDamage(_playerPresenter.CurrentPower);
+    }
+
+    /// <summary>
+    /// 背景速度を一時的に変更し、基準速度へ戻す。
+    /// </summary>
+    /// <param name="speedOffset">基準速度に加算する一時速度。</param>
+    private void SetTemporaryBgSpeedOffset(float speedOffset)
+    {
+        if (_bgPresenter == null)
+        {
+            return;
+        }
+
+        float afterSpeed = _baseBgSpeed + speedOffset;
+        _bgPresenter.SetSpeed(afterSpeed);
+
+        _bgSpeedTween?.Kill();
+        _bgSpeedTween = DOVirtual.Float(afterSpeed, _baseBgSpeed, _bgSpeedRecoverTime, value =>
+            {
+                _bgPresenter.SetSpeed(value);
+            })
+            .SetEase(Ease.OutSine)
+            .SetLink(gameObject);
     }
 
     /// <summary>

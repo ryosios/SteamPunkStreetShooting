@@ -23,10 +23,6 @@ public class BossPresenter : MonoBehaviour
     /// <summary>ボスの状態Model</summary>
     [SerializeField] private BossModel _model = new BossModel();
 
-    /// <summary>プレイヤー管理</summary>
-    [FormerlySerializedAs("_playerManager")]
-    [SerializeField] private PlayerPresenter _playerPresenter;
-
     /// <summary>ボスのRigidbody</summary>
     [SerializeField] private Rigidbody _thisRigid;
 
@@ -60,16 +56,20 @@ public class BossPresenter : MonoBehaviour
     /// <summary>ボスの前回ボードインデックスModel</summary>
     private BoardPositionModel _beforeBossIndex;
 
-    /// <summary>ボスHPを増減させたいときに通知</summary>
-    public event Action<float> BossHpAdded;
+    /// <summary>ボスHP加算通知の発信元</summary>
+    private readonly Subject<float> _bossHpAdded = new Subject<float>();
+
+    /// <summary>プレイヤー弾ヒット通知の発信元</summary>
+    private readonly Subject<Unit> _bossHitBulletRequested = new Subject<Unit>();
+
+    /// <summary>ボスHPを増減させたいときの通知</summary>
+    public IObservable<float> BossHpAdded => _bossHpAdded;
+
+    /// <summary>プレイヤー弾がボスに当たったときの通知</summary>
+    public IObservable<Unit> BossHitBulletRequested => _bossHitBulletRequested;
 
     private void Awake()
     {
-        if (_playerPresenter == null)
-        {
-            _playerPresenter = FindFirstObjectByType<PlayerPresenter>();
-        }
-
         if (_thisRigid == null)
         {
             _thisRigid = GetComponent<Rigidbody>();
@@ -98,6 +98,13 @@ public class BossPresenter : MonoBehaviour
         await UniTask.Delay(TimeSpan.FromSeconds(1f));
 
         SetBossAction(BossActionState.In);
+    }
+
+    private void OnDestroy()
+    {
+        _moveTween?.Kill();
+        _bossHpAdded.Dispose();
+        _bossHitBulletRequested.Dispose();
     }
 
     private async void SetBossAction(BossActionState bossActionState)
@@ -180,15 +187,17 @@ public class BossPresenter : MonoBehaviour
     /// </summary>
     public void OnHitBullet()
     {
-        if (_playerPresenter == null || _playerPresenter.CurrentActiveCharacter == null)
-        {
-            Debug.LogWarning("Boss damage references are not assigned.");
-            return;
-        }
+        _bossHitBulletRequested.OnNext(Unit.Default);
+    }
 
-        float activeCharacterPower = _playerPresenter.CurrentActiveCharacter.Power;
-        float normalizedDamage = _model.CalculateNormalizedDamage(activeCharacterPower);
-        BossHpAdded?.Invoke(-normalizedDamage);
+    /// <summary>
+    /// 攻撃力からボスへのダメージを計算してHP変更を通知
+    /// </summary>
+    /// <param name="attackerPower">攻撃側の攻撃力。</param>
+    public void ApplyDamage(float attackerPower)
+    {
+        float normalizedDamage = _model.CalculateNormalizedDamage(attackerPower);
+        _bossHpAdded.OnNext(-normalizedDamage);
     }
 }
 

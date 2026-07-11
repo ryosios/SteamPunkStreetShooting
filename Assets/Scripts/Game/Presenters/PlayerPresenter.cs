@@ -17,6 +17,18 @@ public class PlayerPresenter : MonoBehaviour
         Down,
     }
 
+    public struct CharacterHpChangedEvent
+    {
+        public readonly int Hp;
+        public readonly int CharacterIndex;
+
+        public CharacterHpChangedEvent(int hp, int characterIndex)
+        {
+            Hp = hp;
+            CharacterIndex = characterIndex;
+        }
+    }
+
     /// <summary>現在の入力方向</summary>
     private DirectionKind _directionKind;
 
@@ -25,10 +37,6 @@ public class PlayerPresenter : MonoBehaviour
 
     /// <summary>プレイヤーのRigidbody</summary>
     [SerializeField] private Rigidbody _thisRigid;
-
-    /// <summary>背景管理</summary>
-    [FormerlySerializedAs("_bgManager")]
-    [SerializeField] private BgPresenter _bgPresenter;
 
     /// <summary>使用可能なキャラクター配列</summary>
     [FormerlySerializedAs("_characterManagerArray")]
@@ -69,6 +77,9 @@ public class PlayerPresenter : MonoBehaviour
 
     public CharacterPresenter CurrentActiveCharacter => _currentActiveCharacter;
 
+    /// <summary>現在アクティブなキャラクターの攻撃力</summary>
+    public float CurrentPower => _currentActiveCharacter != null ? _currentActiveCharacter.Power : 0f;
+
     /// <summary>前回アクティブだったキャラクター</summary>
     private CharacterPresenter _beforeActiveCharacter;
 
@@ -77,9 +88,6 @@ public class PlayerPresenter : MonoBehaviour
 
     /// <summary>移動Tween</summary>
     private Tween _moveTween;
-
-    /// <summary>背景の初期スクロール速度</summary>
-    private float _initBgSpeed;
 
     /// <summary>被ダメージ後の無敵時間</summary>
     private float _invincibleTime = 0.5f;
@@ -116,11 +124,23 @@ public class PlayerPresenter : MonoBehaviour
     /// <summary>前回のプレイヤーのボードインデックスModel</summary>
     private BoardPositionModel _beforePlayerIndex;
 
-    /// <summary>キャラクターHPが変わったときに通知</summary>
-    public event Action<int, int> CharacterHpChanged;
+    /// <summary>キャラクターHP変更通知の発信元</summary>
+    private readonly Subject<CharacterHpChangedEvent> _characterHpChanged = new Subject<CharacterHpChangedEvent>();
 
-    /// <summary>スコアを加算したいときに通知</summary>
-    public event Action<int> ScoreAdded;
+    /// <summary>スコア加算通知の発信元</summary>
+    private readonly Subject<int> _scoreAdded = new Subject<int>();
+
+    /// <summary>背景速度一時変更通知の発信元</summary>
+    private readonly Subject<float> _bgSpeedOffsetRequested = new Subject<float>();
+
+    /// <summary>キャラクターHPが変わったときの通知</summary>
+    public IObservable<CharacterHpChangedEvent> CharacterHpChanged => _characterHpChanged;
+
+    /// <summary>スコアを加算したいときの通知</summary>
+    public IObservable<int> ScoreAdded => _scoreAdded;
+
+    /// <summary>背景速度を一時的に変更したいときの通知</summary>
+    public IObservable<float> BgSpeedOffsetRequested => _bgSpeedOffsetRequested;
 
     private void Awake()
     {
@@ -151,8 +171,6 @@ public class PlayerPresenter : MonoBehaviour
 
         _currentPlayerIndex = new BoardPositionModel(0, 2);
 
-        _initBgSpeed = _bgPresenter.GetSpeed();
-
         _parryCollider.gameObject.SetActive(false);
     }
 
@@ -169,12 +187,12 @@ public class PlayerPresenter : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.D))
         {
             SetMove(DirectionKind.Right);
-            SetBgSpeed(2f);
+            _bgSpeedOffsetRequested.OnNext(2f);
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
             SetMove(DirectionKind.Left);
-            SetBgSpeed(-2f);
+            _bgSpeedOffsetRequested.OnNext(-2f);
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -191,6 +209,14 @@ public class PlayerPresenter : MonoBehaviour
         }
 
         UpdateTimers();
+    }
+
+    private void OnDestroy()
+    {
+        _moveTween?.Kill();
+        _characterHpChanged.Dispose();
+        _scoreAdded.Dispose();
+        _bgSpeedOffsetRequested.Dispose();
     }
 
     /// <summary>
@@ -254,19 +280,6 @@ public class PlayerPresenter : MonoBehaviour
     }
 
     /// <summary>
-    /// 移動に合わせて背景スクロール速度を一時的に変更
-    /// </summary>
-    private void SetBgSpeed(float speed)
-    {
-        var afterSpeed = _initBgSpeed + speed;
-        _bgPresenter.SetSpeed(afterSpeed);
-        DOVirtual.Float(afterSpeed, _initBgSpeed, 0.35f, value =>
-        {
-            _bgPresenter.SetSpeed(value);
-        }).SetEase(Ease.OutSine);
-    }
-
-    /// <summary>
     /// キャラクターを交代
     /// </summary>
     private async void ChangeCharacter()
@@ -308,7 +321,7 @@ public class PlayerPresenter : MonoBehaviour
 
             int characterIndex = GetCharacterIndex(_currentActiveCharacter);
             _currentActiveCharacter.AddHp(-1);
-            CharacterHpChanged?.Invoke(_currentActiveCharacter.Hp, characterIndex);
+            _characterHpChanged.OnNext(new CharacterHpChangedEvent(_currentActiveCharacter.Hp, characterIndex));
         }
     }
 
@@ -345,7 +358,7 @@ public class PlayerPresenter : MonoBehaviour
     public void OnParryBullet()
     {
         Debug.Log("パリィ");
-        ScoreAdded?.Invoke(_parryScorePoint);
+        _scoreAdded.OnNext(_parryScorePoint);
         PlayParryHitStop().Forget();
     }
 
@@ -358,7 +371,7 @@ public class PlayerPresenter : MonoBehaviour
         {
             _isPossibleGraze = false;
             _isGrazeTimerStart = true;
-            ScoreAdded?.Invoke(_grazeScorePoint);
+            _scoreAdded.OnNext(_grazeScorePoint);
         }
     }
 
