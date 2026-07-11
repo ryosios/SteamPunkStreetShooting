@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: CharacterAbilityAttack_CharacterAttach_Character001
   m_EditorClassIdentifier: 
   _destroyTime: 0
+  _stopOnCharacterChange: 1
   _attackParticle: {fileID: 47543473859972685, guid: 6bf5dd18fa855af4daa9bd73e1d90caf, type: 3}

@@ -296,6 +296,7 @@ public class PlayerPresenter : MonoBehaviour
 
             SetParryCollider().Forget();
 
+            _beforeActiveCharacter.StopCharacterChangeAbilities();
             _beforeActiveCharacter.SetActivateObjectActive(true);
             _currentActiveCharacter.SetActivateObjectActive(true);
             _currentActiveCharacter.UseAllAbilities();

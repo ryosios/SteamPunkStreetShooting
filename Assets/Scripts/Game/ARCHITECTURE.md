@@ -162,6 +162,7 @@ uiAnimation.SetInactive();
 アビリティは `CharacterPresenter` から実行されます。
 ただし、アビリティ側は `CharacterPresenter` 自体には依存せず、`CharacterAbilityContext` 経由で必要なTransformだけを受け取ります。
 生成物は寿命が設定されている場合に自動Destroyされます。
+寿命が0以下のアビリティでも、`Stop On Character Change` を有効にするとキャラクター切り替え時にDestroyされます。
 
 ## Detector
 

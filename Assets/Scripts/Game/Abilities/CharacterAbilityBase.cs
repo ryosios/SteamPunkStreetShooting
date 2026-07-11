@@ -8,6 +8,13 @@ public abstract class CharacterAbilityBase : ScriptableObject
     /// <summary>生成したアビリティをDestroyするまでの時間。0以下なら自動Destroyしない</summary>
     [SerializeField] private float _destroyTime = 0f;
 
+    /// <summary>キャラクター切り替え時に生成したアビリティを停止するか</summary>
+    [Header("通常弾ループの場合は設定")]
+    [SerializeField] private bool _stopOnCharacterChange = false;
+
+    /// <summary>キャラクター切り替え時に停止するか</summary>
+    public bool StopOnCharacterChange => _stopOnCharacterChange;
+
     /// <summary>
     /// アビリティを適用
     /// </summary>

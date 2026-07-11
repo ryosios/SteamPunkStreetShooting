@@ -7,6 +7,18 @@ using System.Collections.Generic;
 
 public class CharacterPresenter : MonoBehaviour
 {
+    private struct ActiveAbilityInstance
+    {
+        public readonly Transform Transform;
+        public readonly bool StopOnCharacterChange;
+
+        public ActiveAbilityInstance(Transform transform, bool stopOnCharacterChange)
+        {
+            Transform = transform;
+            StopOnCharacterChange = stopOnCharacterChange;
+        }
+    }
+
     /// <summary>キャラクターの状態Model</summary>
     [SerializeField] private CharacterModel _model = new CharacterModel();
 
@@ -28,7 +40,7 @@ public class CharacterPresenter : MonoBehaviour
     [SerializeField] private CharacterAbilityBase[] _characterAbilityBase;
 
     /// <summary>現在有効になっているアビリティのインスタンス</summary>
-    private readonly List<Transform> _activeAbilityTransList = new();
+    private readonly List<ActiveAbilityInstance> _activeAbilityInstances = new();
 
     /// <summary>キャラ切り替えで非アクティブやアクティブにするオブジェクト</summary>
     [SerializeField] private GameObject _activateObject;
@@ -45,6 +57,11 @@ public class CharacterPresenter : MonoBehaviour
         {
             _worldAttachPoint = attachPointObject.transform;
         }
+    }
+
+    private void OnDestroy()
+    {
+        StopAllAbilities();
     }
 
     /// <summary>
@@ -116,7 +133,9 @@ public class CharacterPresenter : MonoBehaviour
         Transform abilityTrans = ability.ApplyAbility(AbilityContext);
         if (abilityTrans != null)
         {
-            _activeAbilityTransList.Add(abilityTrans);
+            _activeAbilityInstances.Add(new ActiveAbilityInstance(
+                abilityTrans,
+                ability.StopOnCharacterChange));
         }
 
         return abilityTrans;
@@ -127,15 +146,37 @@ public class CharacterPresenter : MonoBehaviour
     /// </summary>
     public void StopAllAbilities()
     {
-        for (int i = _activeAbilityTransList.Count - 1; i >= 0; i--)
+        for (int i = _activeAbilityInstances.Count - 1; i >= 0; i--)
         {
-            Transform abilityTrans = _activeAbilityTransList[i];
+            Transform abilityTrans = _activeAbilityInstances[i].Transform;
             if (abilityTrans != null)
             {
                 Destroy(abilityTrans.gameObject);
             }
 
-            _activeAbilityTransList.RemoveAt(i);
+            _activeAbilityInstances.RemoveAt(i);
+        }
+    }
+
+    /// <summary>
+    /// キャラクター切り替え時に停止する設定のアビリティだけ停止
+    /// </summary>
+    public void StopCharacterChangeAbilities()
+    {
+        for (int i = _activeAbilityInstances.Count - 1; i >= 0; i--)
+        {
+            ActiveAbilityInstance abilityInstance = _activeAbilityInstances[i];
+            if (!abilityInstance.StopOnCharacterChange)
+            {
+                continue;
+            }
+
+            if (abilityInstance.Transform != null)
+            {
+                Destroy(abilityInstance.Transform.gameObject);
+            }
+
+            _activeAbilityInstances.RemoveAt(i);
         }
     }
 
@@ -144,11 +185,11 @@ public class CharacterPresenter : MonoBehaviour
     /// </summary>
     private void CleanupDestroyedAbilities()
     {
-        for (int i = _activeAbilityTransList.Count - 1; i >= 0; i--)
+        for (int i = _activeAbilityInstances.Count - 1; i >= 0; i--)
         {
-            if (_activeAbilityTransList[i] == null)
+            if (_activeAbilityInstances[i].Transform == null)
             {
-                _activeAbilityTransList.RemoveAt(i);
+                _activeAbilityInstances.RemoveAt(i);
             }
         }
     }
