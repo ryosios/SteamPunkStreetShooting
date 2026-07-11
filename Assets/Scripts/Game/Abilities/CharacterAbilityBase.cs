@@ -11,8 +11,8 @@ public abstract class CharacterAbilityBase : ScriptableObject
     /// <summary>
     /// アビリティを適用
     /// </summary>
-    /// <param name="character"> キャラクター </param>
-    public abstract Transform ApplyAbility(CharacterPresenter character);
+    /// <param name="context">アビリティ実行に必要なキャラクター側の参照情報。</param>
+    public abstract Transform ApplyAbility(CharacterAbilityContext context);
 
     /// <summary>
     /// 寿命が設定されている場合、生成したアビリティを自動Destroy

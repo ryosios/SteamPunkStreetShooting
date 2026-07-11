@@ -27,6 +27,7 @@
 入力、当たり判定、ゲーム進行などを受け取り、Modelを更新してViewへ反映します。Unityの`MonoBehaviour`としてシーン上のオブジェクトに付ける中心役です。
 
 - `GamePresenter`: ゲーム全体の進行管理とHUD更新の集約役
+- `ScorePresenter`: スコアModelとScoreViewの橋渡し
 - `PlayerPresenter`: プレイヤー操作、キャラ切り替え、被弾、パリィ、グレイズ
 - `CharacterPresenter`: キャラクターの状態とアビリティの橋渡し
 - `BossPresenter`: ボス移動、被弾、ダメージ計算イベント
@@ -40,6 +41,9 @@
 `GamePresenter` がそれらのイベントを購読し、`GameHudView` に表示更新を依頼します。
 
 これにより、プレイヤーやボスの処理はHUDの具体的な作りを知らなくてよくなります。
+
+スコアは `ScorePresenter` が `ScoreModel` を更新し、`ScoreView` に表示値を渡します。
+`ScoreView` はスコアを保持せず、受け取った値をテキストに表示するだけにします。
 
 UIアニメーションは表示演出なのでView側に置きます。Presenterは `PlayShow()` や `PlayHide()` を呼んで、どのタイミングで表示演出するかだけを決めます。`PlayHide()` は見た目を非表示にするだけで、GameObjectは非アクティブにしません。
 

@@ -7,7 +7,7 @@ MVPの考え方そのものは `MVP_README.md` にまとめ、こちらでは実
 
 - `Model` は状態や計算を持つ。
 - `View` は画面表示、UI部品、演出を扱う。
-- `Presenter` は入力、イベント、ゲーム進行を受け取り、ModelとViewをつなぐ。
+- `Presenter` は入力、通知、ゲーム進行を受け取り、ModelとViewをつなぐ。
 - `View` 同士の親子関係は許可する。
 - `Model` から `View` や `Presenter` へ依存しない。
 - `PlayerPresenter` や `BossPresenter` はHUDを直接更新せず、通知を発行する。
@@ -21,14 +21,13 @@ Presenter -> View
 Presenter -> Presenter
 View -> Child View
 View -> View Animation
-View -> Model  ※ScoreViewのみ、現在はスコア保持のために使用
 Model -> なし
-Detector -> Presenter
-Ability -> CharacterPresenter
+Detector -> HitDetectionEvents
+Ability -> CharacterAbilityContext
 ```
 
-`ScoreView -> ScoreModel` は、現状ではスコア表示とスコア保持が同じViewに入っています。
-スコアをゲームルールで多く使うようになったら、`GamePresenter` か専用Presenter側に寄せる候補です。
+`CharacterAbilityContext` のようなContextは、処理を持つ上位クラスではなく、必要な参照だけを渡すための値です。
+そのため、作る側と受け取る側の両方が同じContext型に依存していても問題ありません。
 
 ## 図の凡例
 
@@ -56,6 +55,10 @@ flowchart TD
     GamePresenter --> PlayerPresenter
     GamePresenter --> BossPresenter
     GamePresenter --> BgPresenter
+    GamePresenter --> ScorePresenter
+
+    ScorePresenter --> ScoreModel
+    ScorePresenter --> ScoreView
 
     PlayerPresenter --> BoardManager
     PlayerPresenter --> CharacterPresenter
@@ -72,8 +75,9 @@ flowchart TD
 
     CharacterPresenter --> CharacterModel
     CharacterPresenter --> CharacterAbilityBase
+    CharacterPresenter --> CharacterAbilityContext
 
-    CharacterAbilityBase --> CharacterPresenter
+    CharacterAbilityBase --> CharacterAbilityContext
     CharacterAbilityAttack_CharacterAttach --> CharacterAbilityBase
     CharacterAbilityAttack_WorldAttach --> CharacterAbilityBase
     CharacterAbilityShield --> CharacterAbilityBase
@@ -81,8 +85,6 @@ flowchart TD
     GameHudView --> CharacterStatusView
     GameHudView --> ScoreView
     GameHudView --> BossStatusView
-
-    ScoreView --> ScoreModel
 
     UiFadeAnimationView --> UiAnimationViewBase
     UiPopAnimationView --> UiAnimationViewBase
@@ -93,18 +95,22 @@ flowchart TD
 
     BoardManager --> BoardSquare
 
-    ParticleHitDetector --> PlayerPresenter
-    ParticleHitDetectorPlayer --> BossPresenter
+    ParticleHitDetector --> HitDetectionEvents
+    ParticleHitDetectorPlayer --> HitDetectionEvents
+    ParticleHitDetector -. EnemyBulletPlayerHitDetectedEvent .-> GamePresenter
+    ParticleHitDetector -. EnemyBulletPlayerGrazeDetectedEvent .-> GamePresenter
+    ParticleHitDetectorPlayer -. PlayerBulletBossHitDetectedEvent .-> GamePresenter
 ```
 
 ## Presenter
 
 | Class | 主な責任 | 主な依存 |
 | --- | --- | --- |
-| `GamePresenter` | ゲーム全体の進行、HUD更新通知の集約、背景速度変更、ボスダメージの橋渡し | `GameHudView`, `PlayerPresenter`, `BossPresenter`, `BgPresenter` |
+| `GamePresenter` | ゲーム全体の進行、HUD更新通知の集約、背景速度変更、ボスダメージの橋渡し | `GameHudView`, `PlayerPresenter`, `BossPresenter`, `BgPresenter`, `ScorePresenter` |
+| `ScorePresenter` | スコアModelの更新とScoreViewへの表示反映 | `ScoreModel`, `ScoreView` |
 | `PlayerPresenter` | プレイヤー入力、ボード移動、キャラ切り替え、被弾、パリィ、グレイズ | `BoardManager`, `CharacterPresenter[]`, `BoardPositionModel` |
 | `BossPresenter` | ボスのボード移動、被弾通知、受け取った攻撃力からのダメージ計算、HP変更通知 | `BossModel`, `BoardPositionModel`, `BoardManager` |
-| `CharacterPresenter` | キャラクター状態、表示用オブジェクト切り替え、アビリティ実行 | `CharacterModel`, `CharacterAbilityBase[]` |
+| `CharacterPresenter` | キャラクター状態、表示用オブジェクト切り替え、アビリティ実行 | `CharacterModel`, `CharacterAbilityBase[]`, `CharacterAbilityContext` |
 | `BgPresenter` | 背景ブロック生成、スクロール速度管理、ループ制御 | `BgBlockPresenter[]` |
 | `BgBlockPresenter` | 背景ブロック単位のRigidbody移動 | `Rigidbody`, `Transform` |
 
@@ -114,17 +120,17 @@ flowchart TD
 | --- | --- | --- |
 | `CharacterModel` | HP、最大HP、攻撃力 | `CharacterPresenter` |
 | `BossModel` | 防御値、正規化ダメージ計算 | `BossPresenter` |
-| `ScoreModel` | スコア保持と加算 | `ScoreView` |
+| `ScoreModel` | スコア保持と加算 | `ScorePresenter` |
 | `BoardPositionModel` | ボード上の `x, y` インデックス | `PlayerPresenter`, `BossPresenter` |
 
 ## View
 
 | Class | 主な責任 | 主な依存 |
 | --- | --- | --- |
-| `GameHudView` | HUD全体の親View。子Viewへ表示更新を振り分ける | `CharacterStatusView[]`, `ScoreView`, `BossStatusView` |
+| `GameHudView` | HUD全体の親View。子Viewへの参照をまとめる | `CharacterStatusView[]`, `ScoreView`, `BossStatusView` |
 | `CharacterStatusView` | キャラクターHPアイコン、顔アイコン表示 | `Image[]`, `Image` |
 | `BossStatusView` | ボスHPスライダー、名前表示 | `Slider`, `TextMeshProUGUI` |
-| `ScoreView` | スコア表示 | `TextMeshProUGUI`, `ScoreModel` |
+| `ScoreView` | 渡されたスコア値をテキスト表示する | `TextMeshProUGUI` |
 
 ## UI Animation View
 
@@ -148,18 +154,22 @@ uiAnimation.SetInactive();
 | Class | 主な責任 |
 | --- | --- |
 | `CharacterAbilityBase` | キャラクターアビリティScriptableObjectの基底クラス |
+| `CharacterAbilityContext` | アビリティ実行時に必要なTransform参照だけを渡す値 |
 | `CharacterAbilityAttack_CharacterAttach` | キャラクターのアタッチポイントに攻撃Particleを生成 |
 | `CharacterAbilityAttack_WorldAttach` | ワールド側のアタッチポイントに攻撃Particleを生成 |
 | `CharacterAbilityShield` | キャラクターのアタッチポイントにシールドColliderを生成 |
 
-アビリティは `CharacterPresenter` から実行され、生成物は寿命が設定されている場合に自動Destroyされます。
+アビリティは `CharacterPresenter` から実行されます。
+ただし、アビリティ側は `CharacterPresenter` 自体には依存せず、`CharacterAbilityContext` 経由で必要なTransformだけを受け取ります。
+生成物は寿命が設定されている場合に自動Destroyされます。
 
 ## Detector
 
 | Class | 主な責任 | 通知先 |
 | --- | --- | --- |
-| `ParticleHitDetector` | 敵弾Particleとプレイヤー側判定の検知 | `PlayerPresenter` |
-| `ParticleHitDetectorPlayer` | プレイヤー弾Particleとボス側判定の検知 | `BossPresenter` |
+| `ParticleHitDetector` | 敵弾Particleとプレイヤー側判定の検知 | `GamePresenter` |
+| `ParticleHitDetectorPlayer` | プレイヤー弾Particleとボス側判定の検知 | `GamePresenter` |
+| `HitDetectionEvents` | DetectorからGamePresenterへ送るヒット通知の型 | `GamePresenter` |
 
 ## Board
 
@@ -173,10 +183,13 @@ uiAnimation.SetInactive();
 | 発行元 | イベント | 購読先 | 用途 |
 | --- | --- | --- | --- |
 | `PlayerPresenter` | `IObservable<CharacterHpChangedEvent> CharacterHpChanged` | `GamePresenter` | キャラクターHP表示更新 |
-| `PlayerPresenter` | `IObservable<int> ScoreAdded` | `GamePresenter` | スコア表示加算 |
+| `PlayerPresenter` | `IObservable<int> ScoreAdded` | `GamePresenter` | スコア加算 |
 | `PlayerPresenter` | `IObservable<float> BgSpeedOffsetRequested` | `GamePresenter` | プレイヤー移動に伴う背景速度の一時変更 |
 | `BossPresenter` | `IObservable<Unit> BossHitBulletRequested` | `GamePresenter` | ボス被弾時に、現在プレイヤー攻撃力でダメージを橋渡し |
 | `BossPresenter` | `IObservable<float> BossHpAdded` | `GamePresenter` | ボスHP表示加算 |
+| `ParticleHitDetector` | `MessageBroker: EnemyBulletPlayerHitDetectedEvent` | `GamePresenter` | 敵弾ヒットをプレイヤーへ反映 |
+| `ParticleHitDetector` | `MessageBroker: EnemyBulletPlayerGrazeDetectedEvent` | `GamePresenter` | 敵弾グレイズをプレイヤーへ反映 |
+| `ParticleHitDetectorPlayer` | `MessageBroker: PlayerBulletBossHitDetectedEvent` | `GamePresenter` | プレイヤー弾ヒットをボスへ反映 |
 
 ## 更新時の目安
 

@@ -33,6 +33,10 @@ public class CharacterPresenter : MonoBehaviour
     /// <summary>キャラ切り替えで非アクティブやアクティブにするオブジェクト</summary>
     [SerializeField] private GameObject _activateObject;
 
+    /// <summary>アビリティ実行に必要な参照情報</summary>
+    private CharacterAbilityContext AbilityContext =>
+        new CharacterAbilityContext(transform, _characterAttachPoint, _worldAttachPoint);
+
     private void Awake()
     {
         //ワールドアタッチポイント取得
@@ -109,7 +113,7 @@ public class CharacterPresenter : MonoBehaviour
 
         CleanupDestroyedAbilities();
 
-        Transform abilityTrans = ability.ApplyAbility(this);
+        Transform abilityTrans = ability.ApplyAbility(AbilityContext);
         if (abilityTrans != null)
         {
             _activeAbilityTransList.Add(abilityTrans);

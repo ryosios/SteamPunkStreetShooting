@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 public class ParticleHitDetectorPlayer : MonoBehaviour
 {
+    /// <summary>ボス判定に使うタグ</summary>
+    [SerializeField] private string _bossTag = "Boss";
+
     private ParticleSystem _particleSystem;
 
     private readonly List<ParticleSystem.Particle> _insideParticles = new();
@@ -28,31 +31,34 @@ public class ParticleHitDetectorPlayer : MonoBehaviour
 
     private void OnParticleCollision(GameObject other)
     {
-        BossPresenter hitBossPresenter = other.GetComponentInParent<BossPresenter>();
-        if (hitBossPresenter == null)
+        if (!HasTagInParent(other.transform, _bossTag))
         {
             return;
         }
 
-        hitBossPresenter.OnHitBullet();
+        MessageBroker.Default.Publish(new PlayerBulletBossHitDetectedEvent());
 
     }
 
-    /*
-    private void OnParticleTrigger()
+    private bool HasTagInParent(Transform target, string tagName)
     {
-        int count = _particleSystem.GetTriggerParticles(
-            ParticleSystemTriggerEventType.Inside,
-            _insideParticles
-        );
+        if (target == null || string.IsNullOrEmpty(tagName))
+        {
+            return false;
+        }
 
-        if (count <= 0) return;
+        Transform current = target;
+        while (current != null)
+        {
+            if (current.CompareTag(tagName))
+            {
+                return true;
+            }
 
-        // かすり通知
-        _playerPresenter.OnGrazeBullet();       
+            current = current.parent;
+        }
 
-
+        return false;
     }
-    */
 }
 

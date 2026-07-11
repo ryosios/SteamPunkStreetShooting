@@ -31,6 +31,9 @@ public class GamePresenter : MonoBehaviour
     [FormerlySerializedAs("_bgManager")]
     [SerializeField] private BgPresenter _bgPresenter;
 
+    /// <summary>敵弾のヒット検知</summary>
+    [SerializeField] private ParticleHitDetector[] _enemyBulletHitDetectors;
+
     /// <summary>背景速度を一時変更したあと基準速度へ戻す時間</summary>
     [SerializeField] private float _bgSpeedRecoverTime = 0.35f;
 
@@ -39,6 +42,9 @@ public class GamePresenter : MonoBehaviour
 
     /// <summary>背景速度変更Tween</summary>
     private Tween _bgSpeedTween;
+
+    /// <summary>スコアPresenter</summary>
+    private readonly ScorePresenter _scorePresenter = new ScorePresenter();
 
     private void Awake()
     {
@@ -65,6 +71,16 @@ public class GamePresenter : MonoBehaviour
         if (_bgPresenter != null)
         {
             _baseBgSpeed = _bgPresenter.GetSpeed();
+        }
+
+        if (_enemyBulletHitDetectors == null || _enemyBulletHitDetectors.Length <= 0)
+        {
+            _enemyBulletHitDetectors = FindObjectsByType<ParticleHitDetector>(FindObjectsSortMode.None);
+        }
+
+        if (_gameHudView != null)
+        {
+            _scorePresenter.SetView(_gameHudView.ScoreView);
         }
 
         RegisterPresenterEvents();
@@ -105,6 +121,39 @@ public class GamePresenter : MonoBehaviour
                 .Subscribe(_ => ApplyPlayerDamageToBoss())
                 .AddTo(this);
         }
+
+        if (_enemyBulletHitDetectors != null)
+        {
+            for (int i = 0; i < _enemyBulletHitDetectors.Length; i++)
+            {
+                ParticleHitDetector detector = _enemyBulletHitDetectors[i];
+                if (detector == null)
+                {
+                    continue;
+                }
+
+                if (_playerPresenter != null)
+                {
+                    detector.SetGrazeCollider(_playerPresenter.GrazeCollider);
+                }
+
+            }
+        }
+
+        MessageBroker.Default
+            .Receive<EnemyBulletPlayerHitDetectedEvent>()
+            .Subscribe(_ => ApplyEnemyBulletHitToPlayer())
+            .AddTo(this);
+
+        MessageBroker.Default
+            .Receive<EnemyBulletPlayerGrazeDetectedEvent>()
+            .Subscribe(_ => ApplyEnemyBulletGrazeToPlayer())
+            .AddTo(this);
+
+        MessageBroker.Default
+            .Receive<PlayerBulletBossHitDetectedEvent>()
+            .Subscribe(_ => ApplyPlayerBulletHitToBoss())
+            .AddTo(this);
     }
 
     /// <summary>
@@ -125,12 +174,7 @@ public class GamePresenter : MonoBehaviour
     /// </summary>
     private void AddScore(int score)
     {
-        if (_gameHudView == null)
-        {
-            return;
-        }
-
-        _gameHudView.AddScore(score);
+        _scorePresenter.AddScore(score);
     }
 
     /// <summary>
@@ -157,6 +201,51 @@ public class GamePresenter : MonoBehaviour
         }
 
         _bossPresenter.ApplyDamage(_playerPresenter.CurrentPower);
+    }
+
+    /// <summary>
+    /// 敵弾ヒットをプレイヤーへ反映
+    /// </summary>
+    private void ApplyEnemyBulletHitToPlayer()
+    {
+        if (_playerPresenter == null)
+        {
+            return;
+        }
+
+        if (_playerPresenter.IsParryActive)
+        {
+            _playerPresenter.OnParryBullet();
+            return;
+        }
+
+        _playerPresenter.OnHitBullet();
+    }
+
+    /// <summary>
+    /// 敵弾グレイズをプレイヤーへ反映
+    /// </summary>
+    private void ApplyEnemyBulletGrazeToPlayer()
+    {
+        if (_playerPresenter == null)
+        {
+            return;
+        }
+
+        _playerPresenter.OnGrazeBullet();
+    }
+
+    /// <summary>
+    /// プレイヤー弾ヒットをボスへ反映
+    /// </summary>
+    private void ApplyPlayerBulletHitToBoss()
+    {
+        if (_bossPresenter == null)
+        {
+            return;
+        }
+
+        _bossPresenter.OnHitBullet();
     }
 
     /// <summary>

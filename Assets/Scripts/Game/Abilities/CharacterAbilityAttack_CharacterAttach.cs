@@ -12,12 +12,12 @@ public class CharacterAbilityAttack_CharacterAttach : CharacterAbilityBase
     /// <summary>
     /// アビリティを適用
     /// </summary>
-    /// <param name="character"> キャラクター </param>
-    public override Transform ApplyAbility(CharacterPresenter character) 
+    /// <param name="context">アビリティ実行に必要なキャラクター側の参照情報。</param>
+    public override Transform ApplyAbility(CharacterAbilityContext context)
     {
-        if (character == null || character.CharacterAttachPoint == null)
+        if (context.CharacterAttachPoint == null)
         {
-            Debug.LogWarning("Ability target character or attach point is not assigned.");
+            Debug.LogWarning("Character attach point is not assigned.");
             return null;
         }
 
@@ -27,7 +27,7 @@ public class CharacterAbilityAttack_CharacterAttach : CharacterAbilityBase
             return null;
         }
 
-        var abilityTrans = Instantiate(_attackParticle.transform, character.CharacterAttachPoint);
+        var abilityTrans = Instantiate(_attackParticle.transform, context.CharacterAttachPoint);
         abilityTrans.gameObject.SetActive(true);
         var abilityParticle = abilityTrans.GetComponent<ParticleSystem>();
         if (abilityParticle != null)

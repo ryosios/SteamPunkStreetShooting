@@ -11,6 +11,9 @@ public class GameHudView : MonoBehaviour
     [FormerlySerializedAs("_uiScoreManager")]
     [SerializeField] private ScoreView _scoreView;
 
+    /// <summary>スコアView</summary>
+    public ScoreView ScoreView => _scoreView;
+
     /// <summary>ボスのステータスView</summary>
     [FormerlySerializedAs("_uiBossStatusManager")]
     [SerializeField] private BossStatusView _bossStatusView;
@@ -33,20 +36,6 @@ public class GameHudView : MonoBehaviour
         }
 
         _characterStatusViews[characterIndex].SetHpValue(value);
-    }
-
-    /// <summary>
-    /// スコア表示を加算更新
-    /// </summary>
-    public void AddScore(int value)
-    {
-        if (_scoreView == null)
-        {
-            Debug.LogWarning("ScoreView is not assigned.");
-            return;
-        }
-
-        _scoreView.AddScore(value);
     }
 
     /// <summary>

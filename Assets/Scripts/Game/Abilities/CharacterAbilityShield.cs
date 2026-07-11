@@ -12,12 +12,12 @@ public class CharacterAbilityShield : CharacterAbilityBase
     /// <summary>
     /// アビリティを適用
     /// </summary>
-    /// <param name="character"> キャラクター </param>
-    public override Transform ApplyAbility(CharacterPresenter character) 
+    /// <param name="context">アビリティ実行に必要なキャラクター側の参照情報。</param>
+    public override Transform ApplyAbility(CharacterAbilityContext context)
     {
-        if (character == null)
+        if (context.OwnerTransform == null)
         {
-            Debug.LogWarning("Ability target character is not assigned.");
+            Debug.LogWarning("Ability owner transform is not assigned.");
             return null;
         }
 
@@ -27,7 +27,7 @@ public class CharacterAbilityShield : CharacterAbilityBase
             return null;
         }
 
-        var abilityTrans = Instantiate(_shieldCollider.transform, character.transform);
+        var abilityTrans = Instantiate(_shieldCollider.transform, context.OwnerTransform);
         abilityTrans.gameObject.SetActive(true);
 
         DestroyAfterLifeTime(abilityTrans);
