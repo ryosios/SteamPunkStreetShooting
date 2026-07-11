@@ -19,6 +19,8 @@
 - `CharacterStatusView`: キャラクターHP表示
 - `BossStatusView`: ボスHP表示
 - `ScoreView`: スコア表示
+- `UiAnimationViewBase`: UIアニメーションViewの共通処理
+- `UiFadeAnimationView` / `UiPopAnimationView` / `UiSlideAnimationView`: DOTweenを使ったUIアニメーション部品
 
 ## Presenter
 
@@ -38,6 +40,12 @@
 `GamePresenter` がそれらのイベントを購読し、`GameHudView` に表示更新を依頼します。
 
 これにより、プレイヤーやボスの処理はHUDの具体的な作りを知らなくてよくなります。
+
+UIアニメーションは表示演出なのでView側に置きます。Presenterは `PlayShow()` や `PlayHide()` を呼んで、どのタイミングで表示演出するかだけを決めます。`PlayHide()` は見た目を非表示にするだけで、GameObjectは非アクティブにしません。
+
+アニメーション完了を待ちたい場合は `PlayShowAsync()` や `PlayHideAsync()` を使います。これらはUniTaskを返すので、Presenter側から `await` できます。非表示完了後にGameObjectも止めたい場合は、`await PlayHideAsync()` のあとに `SetInactive()` を呼びます。
+
+アニメーション内容を実行中に確認したい場合は、`UiFadeAnimationView` など各アニメーションViewの `_enableEditorDebugShortcut` にチェックを入れます。これは `#if UNITY_EDITOR` 内の機能なので、Editor実行中だけ有効です。初期設定では `F5` が表示、`F6` が非表示、`F7` が即時表示、`F8` が即時非表示、`F9` が停止です。
 
 ## 判断の目安
 

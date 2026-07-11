@@ -1319,13 +1319,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f64354b9d1e1a541b11fd7d0999107e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _uiCharacterStatusManager:
+  _characterStatusViews:
   - {fileID: 9060448993849569150}
   - {fileID: 1504502675}
   - {fileID: 982647578}
   - {fileID: 1909532015}
-  _uiScoreManager: {fileID: 1362360609}
-  _uiBossStatusManager: {fileID: 412777086}
+  _scoreView: {fileID: 1362360609}
+  _bossStatusView: {fileID: 412777086}
 --- !u!1001 &601245274
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2600,6 +2600,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ea8504201586fc44af602242bafd368, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _gameHudView: {fileID: 0}
+  _playerPresenter: {fileID: 0}
+  _bossPresenter: {fileID: 0}
 --- !u!1 &1062570230
 GameObject:
   m_ObjectHideFlags: 0
@@ -3063,6 +3066,8 @@ GameObject:
   - component: {fileID: 1362360607}
   - component: {fileID: 1362360608}
   - component: {fileID: 1362360609}
+  - component: {fileID: 1362360611}
+  - component: {fileID: 1362360612}
   m_Layer: 5
   m_Name: ScoreRoot
   m_TagString: Untagged
@@ -3131,6 +3136,44 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _scoreText: {fileID: 211479487}
+--- !u!225 &1362360611
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362360606}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &1362360612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362360606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af58fd44a5ac4583b7df351c85511e75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _targetRect: {fileID: 0}
+  _canvasGroup: {fileID: 0}
+  _showDuration: 0.2
+  _hideDuration: 0.15
+  _ignoreTimeScale: 1
+  _blocksRaycastsOnShow: 1
+  _enableEditorDebugShortcut: 0
+  _debugShowKey: 286
+  _debugHideKey: 287
+  _debugShowImmediateKey: 288
+  _debugHideImmediateKey: 289
+  _debugStopKey: 290
+  _shownAlpha: 1
+  _hiddenAlpha: 0
 --- !u!1 &1382126464
 GameObject:
   m_ObjectHideFlags: 0
@@ -4717,11 +4760,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5adb2d15c328a0c43ba194beb193e2b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _uiDataManager: {fileID: 600141848}
   _boardManager: {fileID: 1866609696}
   _thisRigid: {fileID: 6686120446675562137}
-  _bgManager: {fileID: 1572789357}
-  _characterManagerArray:
+  _bgPresenter: {fileID: 1572789357}
+  _characterPresenters:
   - {fileID: 1879017108}
   - {fileID: 1119977204}
   - {fileID: 1509535394}
