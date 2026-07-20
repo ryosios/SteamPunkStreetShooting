@@ -78,9 +78,11 @@ flowchart TD
     CharacterPresenter --> CharacterAbilityContext
 
     CharacterAbilityBase --> CharacterAbilityContext
+    CharacterAbilityBase --> CharacterAbilityRuntime
     CharacterAbilityAttack_CharacterAttach --> CharacterAbilityBase
     CharacterAbilityAttack_WorldAttach --> CharacterAbilityBase
     CharacterAbilityShield --> CharacterAbilityBase
+    CharacterAbilityPowerBuff --> CharacterAbilityBase
 
     GameHudView --> CharacterStatusView
     GameHudView --> ScoreView
@@ -118,7 +120,7 @@ flowchart TD
 
 | Class | 主な責任 | 使用元 |
 | --- | --- | --- |
-| `CharacterModel` | HP、最大HP、攻撃力 | `CharacterPresenter` |
+| `CharacterModel` | HP、最大HP、攻撃力、攻撃力補正 | `CharacterPresenter`, `CharacterAbilityPowerBuff` |
 | `BossModel` | 防御値、正規化ダメージ計算 | `BossPresenter` |
 | `ScoreModel` | スコア保持と加算 | `ScorePresenter` |
 | `BoardPositionModel` | ボード上の `x, y` インデックス | `PlayerPresenter`, `BossPresenter` |
@@ -155,14 +157,17 @@ uiAnimation.SetInactive();
 | --- | --- |
 | `CharacterAbilityBase` | キャラクターアビリティScriptableObjectの基底クラス |
 | `CharacterAbilityContext` | アビリティ実行時に必要なTransform参照だけを渡す値 |
+| `CharacterAbilityRuntime` | 生成されたアビリティ1回分のDestroy時後処理 |
 | `CharacterAbilityAttack_CharacterAttach` | キャラクターのアタッチポイントに攻撃Particleを生成 |
 | `CharacterAbilityAttack_WorldAttach` | ワールド側のアタッチポイントに攻撃Particleを生成 |
 | `CharacterAbilityShield` | キャラクターのアタッチポイントにシールドColliderを生成 |
+| `CharacterAbilityPowerBuff` | 攻撃力補正を適用し、Destroy時に解除 |
 
 アビリティは `CharacterPresenter` から実行されます。
 ただし、アビリティ側は `CharacterPresenter` 自体には依存せず、`CharacterAbilityContext` 経由で必要なTransformだけを受け取ります。
 生成物は寿命が設定されている場合に自動Destroyされます。
 寿命が0以下のアビリティでも、`Stop On Character Change` を有効にするとキャラクター切り替え時にDestroyされます。
+バフ系アビリティは `CharacterAbilityRuntime` の `OnDestroy` を使って補正を解除します。
 
 ## Detector
 

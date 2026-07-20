@@ -30,7 +30,7 @@ public class CharacterAbilityShield : CharacterAbilityBase
         var abilityTrans = Instantiate(_shieldCollider.transform, context.OwnerTransform);
         abilityTrans.gameObject.SetActive(true);
 
-        DestroyAfterLifeTime(abilityTrans);
+        RegisterAbilityRuntime(abilityTrans, context);
         return abilityTrans;
     }
 }

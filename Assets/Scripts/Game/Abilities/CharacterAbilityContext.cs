@@ -14,13 +14,18 @@ public struct CharacterAbilityContext
     /// <summary>ワールド側に生成するための生成先</summary>
     public readonly Transform WorldAttachPoint;
 
+    /// <summary>キャラクターの状態Model</summary>
+    public readonly CharacterModel CharacterModel;
+
     public CharacterAbilityContext(
         Transform ownerTransform,
         Transform characterAttachPoint,
-        Transform worldAttachPoint)
+        Transform worldAttachPoint,
+        CharacterModel characterModel)
     {
         OwnerTransform = ownerTransform;
         CharacterAttachPoint = characterAttachPoint;
         WorldAttachPoint = worldAttachPoint;
+        CharacterModel = characterModel;
     }
 }

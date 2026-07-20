@@ -35,7 +35,7 @@ public class CharacterAbilityAttack_CharacterAttach : CharacterAbilityBase
             abilityParticle.Play();
         }
 
-        DestroyAfterLifeTime(abilityTrans);
+        RegisterAbilityRuntime(abilityTrans, context);
         return abilityTrans;
     }
 }

@@ -49,6 +49,8 @@ UIアニメーションは表示演出なのでView側に置きます。Presente
 
 アビリティ生成物は、寿命が設定されていれば時間経過でDestroyされます。
 寿命0以下で継続させる場合でも、通常弾ループのようにキャラクター切り替えで止めたいものは、アビリティの `Stop On Character Change` を有効にします。
+バフ系アビリティは、生成物に付く `CharacterAbilityRuntime` がDestroy時に解除処理を呼びます。
+これにより、寿命切れ、キャラクター切り替え、シーン終了のどれでも同じ流れで補正を戻せます。
 
 アニメーション完了を待ちたい場合は `PlayShowAsync()` や `PlayHideAsync()` を使います。これらはUniTaskを返すので、Presenter側から `await` できます。非表示完了後にGameObjectも止めたい場合は、`await PlayHideAsync()` のあとに `SetInactive()` を呼びます。
 

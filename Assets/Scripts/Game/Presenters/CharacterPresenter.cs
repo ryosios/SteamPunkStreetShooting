@@ -47,7 +47,7 @@ public class CharacterPresenter : MonoBehaviour
 
     /// <summary>アビリティ実行に必要な参照情報</summary>
     private CharacterAbilityContext AbilityContext =>
-        new CharacterAbilityContext(transform, _characterAttachPoint, _worldAttachPoint);
+        new CharacterAbilityContext(transform, _characterAttachPoint, _worldAttachPoint, _model);
 
     private void Awake()
     {
